@@ -1,0 +1,12 @@
+{
+  "name": "websocket-server",
+  "version": "1.0.0",
+  "main": "websocket-server.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node websocket-server.js"
+  },
+  "dependencies": {
+    "websocket-decorator-server": "git+https://github.com/Esper-lvl4/websocket-decorator-server.git"
+  }
+}
