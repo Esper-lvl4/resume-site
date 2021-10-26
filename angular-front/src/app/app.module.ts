@@ -3,13 +3,20 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ChessFieldComponent } from './chess-field/chess-field.component';
-import { GameComponent } from './game/game.component';
-import { HomeComponent } from './home/home.component';
-import { WildCardComponent } from './wild-card/wild-card.component';
-import { ChessFieldSquareComponent } from './chess-field-square/chess-field-square.component';
-import { ChessFigureComponent } from './chess-figure/chess-figure.component';
-import { PromotePopupComponent } from './promote-popup/promote-popup.component';
+import { ChessFieldComponent } from './components/chess-field/chess-field.component';
+import { GameComponent } from './routes/game/game.component';
+import { HomeComponent } from './routes/home/home.component';
+import { WildCardComponent } from './routes/wild-card/wild-card.component';
+import { ChessFieldSquareComponent } from './components/chess-field-square/chess-field-square.component';
+import { ChessFigureComponent } from './components/chess-figure/chess-figure.component';
+import { PromotePopupComponent } from './popups/promote-popup/promote-popup.component';
+import { NameSetPopupComponent } from './popups/name-set-popup/name-set-popup.component';
+import { FormsModule } from '@angular/forms';
+import { DefaultPopupComponent } from './popups/default-popup/default-popup.component';
+import { DefaultButtonComponent } from './common-components/default-button/default-button.component';
+import { DefaultTextFieldComponent } from './common-components/default-text-field/default-text-field.component';
+import { LobbyComponent } from './routes/lobby/lobby.component';
+import { StartedGameComponent } from './routes/started-game/started-game.component';
 
 @NgModule({
   declarations: [
@@ -20,11 +27,18 @@ import { PromotePopupComponent } from './promote-popup/promote-popup.component';
     WildCardComponent,
     ChessFieldSquareComponent,
     ChessFigureComponent,
-    PromotePopupComponent
+    PromotePopupComponent,
+    NameSetPopupComponent,
+    DefaultPopupComponent,
+    DefaultButtonComponent,
+    DefaultTextFieldComponent,
+    LobbyComponent,
+    StartedGameComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

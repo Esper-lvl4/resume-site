@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Figure } from 'src/chess-figures/Figure';
-import { Square, SquareCoordinates } from '../classes/Square';
+import { Figure } from 'src/app/classes/chess-figures/Figure';
+import { Square, SquareCoordinates } from '../../classes/Square';
 
 @Component({
   selector: 'app-chess-field-square',

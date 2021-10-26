@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Figure } from 'src/chess-figures/Figure';
-import { Square } from '../classes/Square';
+import { Figure } from 'src/app/classes/chess-figures/Figure';
+import { Square } from '../../classes/Square';
 
 @Component({
   selector: 'app-promote-popup',

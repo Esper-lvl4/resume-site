@@ -1,0 +1,10 @@
+<app-default-popup
+  [(visible)]="visible"
+  title="Enter your name:"
+  (confirm)="confirm()"
+  (reject)="close()"
+>
+  <app-default-text-field
+    [(value)]="currentName"
+  ></app-default-text-field>
+</app-default-popup>

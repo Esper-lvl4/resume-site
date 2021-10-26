@@ -1,4 +1,4 @@
-import { Figure } from "src/chess-figures/Figure";
+import { Figure } from "src/app/classes/chess-figures/Figure";
 
 export const defaultLetters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 

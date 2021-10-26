@@ -1,0 +1,8 @@
+<div class="game-route">
+  <router-outlet></router-outlet>
+  <app-name-set-popup
+    [(visible)]="namePopup"
+    [name]="userInfo?.name || ''"
+    (setNewName)="setNewName($event)"
+  ></app-name-set-popup>
+</div>

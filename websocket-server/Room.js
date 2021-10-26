@@ -104,6 +104,10 @@ class RoomList {
     });
   }
 
+  getRoom(id) {
+    return this.list.find(room => room.id === id);
+  }
+
   hostRoom(name, user) {
     if (!user) return;
     const id = ++this.counter;

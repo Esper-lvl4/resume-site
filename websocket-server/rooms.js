@@ -13,6 +13,15 @@ function handleRooms(socket) {
     socket.emit('userRoomCheckResult', room);
   });
 
+  socket.on('getRoom', data => {
+    if (!data || typeof data !== 'object' || typeof data.id !== 'number') {
+      socket.emit('roomSearchResult');
+      return;
+    }
+    const room = roomList.getRoom(data.id);
+    socket.emit('roomSearchResult', room?.prepareToSend());
+  });
+
   socket.on('createRoom', data => {
     if (!data || typeof data !== 'object') {
       socket.emit('failedToCreateRoom', 'Data was not provided');

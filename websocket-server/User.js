@@ -8,6 +8,38 @@ function makeHash(length = 15) {
 	return result;
 }
 
+class UserList {
+  list = [];
+
+  constructor(list) {
+    if (!Array.isArray(list)) return;
+    this.list = list.filter(item => item instanceof User);
+  }
+
+  add(user) {
+    if (!user || !(user instanceof User)) return;
+    if (this.hasUser(user.id)) return;
+    this.list.push(user);
+  }
+
+  remove(id) {
+    if (typeof id !== 'string') return;
+    const index = this.list.findIndex(user => user.id === id);
+    if (index === -1) return;
+    this.list.splice(index, 1);
+  }
+
+  hasUser(id) {
+    if (typeof id !== 'string') return false;
+    return this.list.some(user => user.id === id);
+  }
+
+  findUser(id) {
+    if (typeof id !== 'string') return;
+    return this.list.find(user => user.id === id);
+  }
+}
+
 class User {
   id = '';
   name = '';
@@ -30,4 +62,7 @@ class User {
   }
 }
 
-module.exports = User;
+module.exports = {
+  User,
+  UserList,
+};

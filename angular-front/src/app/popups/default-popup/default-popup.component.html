@@ -1,0 +1,38 @@
+<div
+  class="default-popup"
+  [class.is-open]="visible"
+>
+  <div class="default-popup-title">{{ title }}</div>
+  <div
+    class="default-popup-content"
+    #content
+  >
+    <ng-content></ng-content>
+  </div>
+  <ng-container *ngIf="!content.hasChildNodes()">
+    {{ message }}
+  </ng-container>
+  <div
+    class="default-popup-buttons"
+    #buttons
+  >
+    <ng-content select="selector"></ng-content>
+  </div>
+  <div class="default-popup-buttons-default">
+    <ng-container *ngIf="!buttons.hasChildNodes()">
+      <app-default-button
+        *ngIf="showConfirmButton"
+        (click)="confirmClick()"
+      >
+        {{ confirmText }}
+      </app-default-button>
+      <app-default-button
+        *ngIf="showConfirmButton"
+        (click)="rejectClick()"
+      >
+        {{ rejectText }}
+      </app-default-button>
+    </ng-container>
+  </div>
+</div>
+

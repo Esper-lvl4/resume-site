@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Figure } from 'src/chess-figures/Figure';
+import { Figure } from 'src/app/classes/chess-figures/Figure';
 
 @Component({
   selector: 'app-chess-figure',

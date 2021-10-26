@@ -1,11 +1,11 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { CoordinatesMap, Figure, FigureMovement } from 'src/chess-figures/Figure';
+import { CoordinatesMap, Figure, FigureMovement } from 'src/app/classes/chess-figures/Figure';
 import {
   PawnFigure,
   KingFigure,
-} from 'src/chess-figures';
-import { Square, SquareCoordinates } from '../classes/Square';
-import { ChessField } from '../classes/ChessField';
+} from 'src/app/classes/chess-figures';
+import { Square, SquareCoordinates } from '../../classes/Square';
+import { ChessField } from '../../classes/ChessField';
 
 @Component({
   selector: 'app-chess-field',

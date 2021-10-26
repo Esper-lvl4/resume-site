@@ -1,5 +1,5 @@
-import { BishopFigure, KingFigure, KnightFigure, PawnFigure, QueenFigure, RookFigure } from "src/chess-figures";
-import { Figure } from "src/chess-figures/Figure";
+import { BishopFigure, KingFigure, KnightFigure, PawnFigure, QueenFigure, RookFigure } from "src/app/classes/chess-figures";
+import { Figure } from "src/app/classes/chess-figures/Figure";
 import { Events } from "./Events";
 import { defaultLetters, Square } from "./Square";
 
