@@ -20,6 +20,14 @@ class User {
     this.id = id || makeHash();
     this.socket = socket;
   }
+
+  prepareToSend() {
+    return {
+      id: this.id,
+      name: this.name,
+      color: this.color,
+    }
+  }
 }
 
 module.exports = User;

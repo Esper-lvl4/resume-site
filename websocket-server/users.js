@@ -5,9 +5,9 @@ const userList = [];
 function handleUsers(socket) {
   socket.on('checkUser', data => {
 		if (!data || typeof data !== 'object') {
-			const newUser = new User();
+			const newUser = new User(socket);
 			userList.push(newUser);
-			socket.emit('saveUser', newUser);
+			socket.emit('saveUser', newUser.prepareToSend());
 			return;
 		}
 		

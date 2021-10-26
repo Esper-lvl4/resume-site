@@ -4,9 +4,13 @@
   "main": "websocket-server.js",
   "license": "MIT",
   "scripts": {
+    "dev": "nodemon websocket-server.js",
     "start": "node websocket-server.js"
   },
   "dependencies": {
     "websocket-decorator-server": "git+https://github.com/Esper-lvl4/websocket-decorator-server.git"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.14"
   }
 }

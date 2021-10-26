@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { Figure } from 'src/chess-figures/Figure';
 import { connectSocket, socket } from 'src/assets/scripts/connectWebsocket';
+import { SocketDecorator } from 'websocket-decorator';
 
 interface UserInfo {
   id: string;
@@ -39,6 +40,10 @@ export class GameComponent implements AfterViewInit {
     return info;
   }
 
+  saveUserInfo(userInfo: UserInfo) {
+    localStorage.setItem('ghost-chess-info', JSON.stringify(userInfo));
+  }
+
   isClient(): boolean {
     return typeof window !== 'undefined';
   }
@@ -47,6 +52,10 @@ export class GameComponent implements AfterViewInit {
     if (this.isClient()) {
       this.loadUserInfo();
       if (!socket) connectSocket();
+      socket?.on('saveUser', (data) => {
+        if (!isUserInfo(data)) return;
+        this.saveUserInfo(data);
+      });
       socket?.emit('checkUser', this.userInfo || undefined);
     }
   } 
