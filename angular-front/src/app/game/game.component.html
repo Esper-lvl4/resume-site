@@ -1,0 +1,17 @@
+<div class="game-route">
+  <div class="captured-figures opponents">
+    <app-chess-figure
+      *ngFor="let figure of opponentsCapturedFigures"
+      [figure]="figure"
+    ></app-chess-figure>
+  </div>
+  <app-chess-field
+    (figureCaptured)="figureCaptured($event)"
+  ></app-chess-field>
+  <div class="captured-figures">
+    <app-chess-figure
+      *ngFor="let figure of yourCapturedFigures"
+      [figure]="figure"
+    ></app-chess-figure>
+  </div>
+</div>

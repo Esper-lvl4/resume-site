@@ -1,0 +1,31 @@
+<div
+  [class.is-black]="isBlack"
+  class="chess-field-square"
+  (click)="squareClick()"
+>
+  <app-chess-figure
+    *ngIf="figure"
+    [figure]="figure"
+    [attr.draggable]="playerColor === figure.color ? 'draggable' : null"
+    (mousedown)="chooseFigure()"
+    (mouseup)="unchooseFigure()"
+    (dragover)="changeTargetSquare()"
+  ></app-chess-figure>
+  <div
+    *ngIf="smallNumber !== ''"
+    class="chess-field-square-x"
+  >
+    {{ smallNumber }}
+  </div>
+  <div
+    *ngIf="smallLetter !== ''"
+    class="chess-field-square-y"
+  >
+    {{ smallLetter }}
+  </div>
+
+  <div
+    *ngIf="isPossibleMove"
+    class="figure-can-be-moved-here"
+  ></div>
+</div>

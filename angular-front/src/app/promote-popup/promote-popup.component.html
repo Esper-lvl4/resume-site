@@ -1,0 +1,12 @@
+<div
+  class="promote-popup"
+  [class.is-open]="visible"
+  [style.left.px]="left"
+>
+  <app-chess-figure
+    *ngFor="let variant of promoteVariants"
+    class="promote-variant"
+    [figure]="variant"
+    (click)="choosePromoteVariant(variant)"
+  ></app-chess-figure>
+</div>
