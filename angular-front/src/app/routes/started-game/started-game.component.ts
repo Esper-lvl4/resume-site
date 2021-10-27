@@ -30,7 +30,6 @@ export class StartedGameComponent implements OnInit {
       const { id } = params;
       this.gameId = isNaN(id) ? 0 : +id;
       if (!this.gameId || this.gameId < 0) this.router.navigate(['game', 'lobby']);
-      // Move socket decorations into separate module and add it everywhere in Angular way.
       // Finish game loading logic.
       // Create lobby components and connect them to websocket server.
       // Write all communications between started game and websocket server.

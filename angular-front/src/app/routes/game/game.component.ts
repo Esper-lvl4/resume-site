@@ -2,6 +2,8 @@ import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { connectSocket, socket } from 'src/app/websocket/connectWebsocket';
 import { UserInfo, isUserInfo } from '../../classes/UserInfo';
 import { isRoomInfo, RoomInfo } from '../../classes/RoomInfo';
+import { WebsocketDecorator } from 'src/app/injectables/websocket';
+import { Route } from '@angular/router';
 
 @Component({
   selector: 'app-game',
@@ -10,7 +12,6 @@ import { isRoomInfo, RoomInfo } from '../../classes/RoomInfo';
 })
 export class GameComponent implements OnInit {
 
-  userInfo: UserInfo | null = null;
   namePopup: boolean = false;
   currentRoom: RoomInfo | null = null;
 
@@ -18,26 +19,13 @@ export class GameComponent implements OnInit {
     return this.currentRoom?.gameHasStarted || false;
   }
 
-  constructor() { }
-
-
-  loadUserInfo(): UserInfo | null {
-    if (this.userInfo) return this.userInfo;
-    const infoString = localStorage.getItem('ghost-chess-info');
-    if (!infoString) return null;
-    const info = JSON.parse(infoString);
-    console.log(info);
-    if (!isUserInfo(info)) return null;
-    this.userInfo = info;
-    return info;
-  }
+  constructor(private socket: WebsocketDecorator) { }
 
   saveUserInfo(userInfo: UserInfo) {
     if (!userInfo.name) {
       this.namePopup = true;
     }
-    localStorage.setItem('ghost-chess-info', JSON.stringify(userInfo));
-    this.userInfo = userInfo;
+    this.socket.saveUserInfo(userInfo);
   }
 
   isClientSide(): boolean {
@@ -46,54 +34,34 @@ export class GameComponent implements OnInit {
 
   setNewName(name: string) {
     if (!name) return;
-    this.event('setNewUserName', { name });
-    if (!this.userInfo) return;
-    this.userInfo.name = name;
-    this.saveUserInfo(this.userInfo);
-  }
-
-  event(event: string, data?: any) {
-    if (!socket) return;
-    const info: { [key: string]: any } = {
-      id: this.userInfo?.id,
-    };
-    if (typeof data === 'object' && data) {
-      Object.keys(data).forEach(key => {
-        info[key] = data[key];
-      });
-    } else if (data) {
-      info.info = data;
-    }
-    socket.emit(event, info);
-  }
-
-  listen(event: string, handler: (data: any) => void) {
-    if (!socket) return;
-    socket.on(event, handler);
+    this.socket.emit('setNewUserName', { name });
+    if (!this.socket.userInfo) return;
+    this.socket.userInfo.name = name;
+    this.saveUserInfo(this.socket.userInfo);
   }
 
   ngOnInit(): void {
     if (this.isClientSide()) {
-      this.loadUserInfo();
+      this.socket.loadUserInfo();
       if (!socket) connectSocket();
 
-      this.listen('saveUser', data => {
+      this.socket.on('saveUser', data => {
         if (!isUserInfo(data)) return;
         this.saveUserInfo(data);
       });
 
-      this.listen('userIsConnected', () => {
-        this.event('checkForUserRoom');
+      this.socket.on('userIsConnected', () => {
+        this.socket.emit('checkForUserRoom');
       });
 
-      this.listen('userRoomCheckResult', room => {
+      this.socket.on('userRoomCheckResult', room => {
         if (!isRoomInfo(room)) {
           return;
         }
         this.currentRoom = room;
       });
 
-      this.event('checkUser', this.userInfo || undefined);
+      this.socket.emit('checkUser', this.socket.userInfo || undefined);
     }
   } 
 
