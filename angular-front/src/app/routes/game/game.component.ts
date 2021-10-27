@@ -19,6 +19,10 @@ export class GameComponent implements OnInit {
     return this.currentRoom?.gameHasStarted || false;
   }
 
+  get userName() {
+    return this.socket.userInfo?.name || '';
+  }
+
   constructor(private socket: WebsocketDecorator) { }
 
   saveUserInfo(userInfo: UserInfo) {

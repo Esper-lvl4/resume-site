@@ -2,7 +2,7 @@
   <router-outlet></router-outlet>
   <app-name-set-popup
     [(visible)]="namePopup"
-    [name]="socket.userInfo?.name || ''"
+    [name]="userName"
     (setNewName)="setNewName($event)"
   ></app-name-set-popup>
 </div>
