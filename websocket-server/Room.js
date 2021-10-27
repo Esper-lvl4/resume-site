@@ -34,13 +34,17 @@ class Room {
 
   join(user) {
     if (!user || this.roomIsFull) return false;
+    const userIsAlreadyInThisRoom = this.players.some(player => player.id === user.id);
+    if (userIsAlreadyInThisRoom) return false;
     this.players.push(user);
     return true;
   }
 
   leave(user) {
     if (!user) return false;
-    const leavingUser = this.players.find(player => player.id === user.id);
+    const index = this.players.findIndex(player => player.id === user.id);
+    if (index === -1) return false;
+    const leavingUser = this.players.splice(index, 1)[0];
     return leavingUser || false;
   }
 
@@ -86,10 +90,10 @@ class Room {
     return {
       id: this.id,
       name: this.name,
-      players: this.player.map(player => player.prepareToSend()),
+      players: this.players.map(player => player.prepareToSend()),
       gameNotation: this.gameNotation.prepareToSend(),
       gameHasStarted: this.gameHasStarted,
-      maxPlayers: this.maxPlayers,
+      maxPlayers: this._maxPlayers,
     }
   }
 }
@@ -126,9 +130,13 @@ class RoomList {
   }
 
   leaveRoom(id, user) {
-    const room = this.list.find(currentRoom => currentRoom.id === id);
-    if (!room) return false;
+    const index = this.list.findIndex(currentRoom => currentRoom.id === id);
+    if (index === -1) return false;
+    const room = this.list[index];
     const successfullyLeft = room.leave(user);
+    if (room.players.length === 0) {
+      this.list.splice(index, 1);
+    }
     return successfullyLeft ? room : false;
   }
 

@@ -1,0 +1,9 @@
+<div class="room-list">
+  <app-room-item
+    *ngFor="let room of list"
+    [room]="room"
+    [isCurrentRoom]="room.id === currentRoom?.id"
+    [isChosenRoom]="room.id === chosenRoom?.id"
+    (click)="emitRoomClick(room)"
+  ></app-room-item>
+</div>

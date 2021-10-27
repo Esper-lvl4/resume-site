@@ -38,6 +38,10 @@ class UserList {
     if (typeof id !== 'string') return;
     return this.list.find(user => user.id === id);
   }
+
+  notifyAllUsers(event, data) {
+    this.list.forEach(user => user.notify(event, data));
+  }
 }
 
 class User {
@@ -51,6 +55,10 @@ class User {
     if (name) this.name = name;
     this.id = id || makeHash();
     this.socket = socket;
+  }
+
+  notify(event, data) {
+    this.socket?.emit(event, data);
   }
 
   prepareToSend() {

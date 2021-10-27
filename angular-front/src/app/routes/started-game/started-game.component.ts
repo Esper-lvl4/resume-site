@@ -48,8 +48,6 @@ export class StartedGameComponent implements OnInit {
         return;
       }
       this.socket.emit('getRoom');
-      // Finish game loading logic.
-      // Create lobby components and connect them to websocket server.
       // Write all communications between started game and websocket server.
       // Make chess field convert game notation into board state. It should not parse
       // notation if it's invalid.

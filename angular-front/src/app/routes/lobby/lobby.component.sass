@@ -1,0 +1,12 @@
+.game-lobby
+  display: grid
+  grid-template: 1fr 50px / repeat(2, 1fr)
+  height: 100%
+
+.game-lobby-controls
+  display: flex
+  flex-flow: row nowrap
+  align-items: center
+  justify-content: flex-start
+  & > *:nth-of-type(n+2)
+    margin-left: 15px

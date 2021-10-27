@@ -1,0 +1,11 @@
+<app-default-popup
+  [(visible)]="visible"
+  title="Create room"
+  (confirm)="confirm()"
+  (reject)="close()"
+>
+  <app-default-text-field
+    [(value)]="name"
+  ></app-default-text-field>
+</app-default-popup>
+

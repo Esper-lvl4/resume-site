@@ -1,1 +1,42 @@
-<p>lobby works!</p>
+<div class="game-lobby">
+  <app-room-list
+    [list]="roomList"
+    [chosenRoom]="targetRoom"
+    [currentRoom]="currentRoom"
+    (roomClick)="setTargetRoom($event)"
+  ></app-room-list>
+  <div class="joined-room">
+
+  </div>
+  <div class="game-lobby-controls">
+    <app-default-button
+      [disabled]="isInRoom"
+      (click)="hostRoom()"
+    >
+      Host room
+    </app-default-button>
+    <app-default-button
+      [disabled]="isInRoom || targetRoomIsFull"
+      (click)="joinRoom()"
+    >
+      Join room
+    </app-default-button>
+    <app-default-button
+      *ngIf="isInRoom"
+      (click)="leaveRoom()"
+    >
+      Leave room
+    </app-default-button>
+    <app-default-button
+      *ngIf="isInRoom"
+      [disabled]="!roomIsFull"
+      (click)="leaveRoom()"
+    >
+      Start game
+    </app-default-button>
+  </div>
+  <app-host-room-popup
+    [(visible)]="hostRoomPopup"
+    (hostRoom)="createRoom($event)"
+  ></app-host-room-popup>
+</div>

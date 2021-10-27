@@ -4,7 +4,7 @@ const userList = new UserList();
 
 function handleUsers(socket) {
   socket.on('checkUser', data => {
-		if (!data || typeof data !== 'object') {
+		if (!data || typeof data !== 'object' || !data.id) {
 			const newUser = new User(socket);
 			userList.add(newUser);
 			socket.emit('saveUser', newUser.prepareToSend());
@@ -13,9 +13,12 @@ function handleUsers(socket) {
 		
 		const { id, name } = data;
 		if (typeof id !== 'string') return;
-		
-		if (!userList.hasUser(id)) {
+
+		const user = userList.findUser(id);
+		if (!user) {
 			userList.add(new User(socket, name, id));
+		} else {
+			user.socket = socket;
 		}
 		socket.emit('userIsConnected', data);
 	});
@@ -29,4 +32,7 @@ function handleUsers(socket) {
 	});
 }
 
-module.exports = handleUsers;
+module.exports = {
+	handleUsers,
+	userList,
+};

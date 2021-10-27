@@ -1,8 +1,17 @@
 const { RoomList } = require("./Room");
+const { userList } = require("./users");
 
 const roomList = new RoomList();
 
+function refreshAllUsers() {
+  userList.notifyAllUsers('refreshRoomList', roomList.prepareToSend());
+}
+
 function handleRooms(socket) {
+  socket.on('getRoomList', () => {
+    socket.emit('refreshRoomList', roomList.prepareToSend());
+  });
+
   socket.on('checkForUserRoom', data => {
     if (!data || typeof data !== 'object' || !data.id) {
       socket.emit('userRoomCheckResult');
@@ -10,7 +19,7 @@ function handleRooms(socket) {
     }
 
     const room = roomList.getRoomByUserId(data.id);
-    socket.emit('userRoomCheckResult', room);
+    socket.emit('userRoomCheckResult', room?.prepareToSend());
   });
 
   socket.on('getRoom', data => {
@@ -27,13 +36,18 @@ function handleRooms(socket) {
       socket.emit('failedToCreateRoom', 'Data was not provided');
       return;
     }
-    const { name, user } = data;
+    const { name, id } = data;
+    const user = userList.findUser(id);
+    if (!user) {
+      socket.emit('failedToCreateRoom', 'User was not found');
+    }
     const room = roomList.hostRoom(name, user);
     if (!room) {
-      socket.emit('failedToCreateRoom', 'User or name was not provided');
+      socket.emit('failedToCreateRoom', 'Room name was not provided');
       return;
     }
-    socket.emit('joinedRoom', room);
+    refreshAllUsers();
+    socket.emit('joinedRoom', room.prepareToSend());
   });
 
   socket.on('joinRoom', data => {
@@ -41,13 +55,15 @@ function handleRooms(socket) {
       socket.emit('failedToJoinRoom', 'Data was not provided');
       return;
     }
-    const { id, user } = data;
-    const room = roomList.joinRoom(id, user);
+    const { id, roomId } = data;
+    const user = userList.findUser(id);
+    const room = roomList.joinRoom(roomId, user);
     if (!room) {
       socket.emit('failedToJoinRoom', 'Either room was not found or was full, or user was not provided');
       return;
     }
-    socket.emit('joinedRoom', room);
+    refreshAllUsers();
+    socket.emit('joinedRoom', room.prepareToSend());
   });
 
   socket.on('leaveRoom', data => {
@@ -55,13 +71,15 @@ function handleRooms(socket) {
       socket.emit('failedToLeaveRoom', 'Data was not provided');
       return;
     }
-    const { id, user } = data;
-    const room = roomList.leaveRoom(id, user);
+    const { id, roomId } = data;
+    const user = userList.findUser(id);
+    const room = roomList.leaveRoom(roomId, user);
     if (!room) {
       socket.emit('failedToLeaveRoom', 'Either room was not found or user was not provided or user is not in any room');
       return;
     }
-    socket.emit('leftRoom', room);
+    refreshAllUsers();
+    socket.emit('leftRoom', room.prepareToSend());
   });
 
   socket.on('startGame', data => {
@@ -75,7 +93,7 @@ function handleRooms(socket) {
       socket.emit('failedToStartGame', 'Either room was not found or it\'s full');
       return;
     }
-    socket.emit('updateCurrentGame', room);
+    socket.emit('updateCurrentGame', room.prepareToSend());
   });
 }
 

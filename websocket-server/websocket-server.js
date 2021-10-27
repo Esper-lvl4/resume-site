@@ -2,7 +2,7 @@
 const { initWebsocketServer } = require('websocket-decorator-server');
 const handleGame = require('./game');
 const { handleRooms } = require('./rooms');
-const handleUsers = require('./users');
+const { handleUsers } = require('./users');
 
 const server = initWebsocketServer({ port: 5000 });
 

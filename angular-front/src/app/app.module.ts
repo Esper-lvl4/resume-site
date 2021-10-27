@@ -17,6 +17,9 @@ import { DefaultButtonComponent } from './common-components/default-button/defau
 import { DefaultTextFieldComponent } from './common-components/default-text-field/default-text-field.component';
 import { LobbyComponent } from './routes/lobby/lobby.component';
 import { StartedGameComponent } from './routes/started-game/started-game.component';
+import { RoomListComponent } from './components/room-list/room-list.component';
+import { RoomItemComponent } from './components/room-item/room-item.component';
+import { HostRoomPopupComponent } from './popups/host-room-popup/host-room-popup.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +36,10 @@ import { StartedGameComponent } from './routes/started-game/started-game.compone
     DefaultButtonComponent,
     DefaultTextFieldComponent,
     LobbyComponent,
-    StartedGameComponent
+    StartedGameComponent,
+    RoomListComponent,
+    RoomItemComponent,
+    HostRoomPopupComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
