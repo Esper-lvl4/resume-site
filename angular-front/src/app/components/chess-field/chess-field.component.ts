@@ -6,6 +6,9 @@ import {
 } from 'src/app/classes/chess-figures';
 import { Square, SquareCoordinates } from '../../classes/Square';
 import { ChessField } from '../../classes/ChessField';
+import RoomInfo from 'src/app/classes/RoomInfo';
+import { WebsocketDecorator } from 'src/app/injectables/websocket';
+import UserInfo from 'src/app/classes/UserInfo';
 
 @Component({
   selector: 'app-chess-field',
@@ -15,10 +18,10 @@ import { ChessField } from '../../classes/ChessField';
 export class ChessFieldComponent implements OnInit {
 
   @Input() notation = [];
+  @Input() room!: RoomInfo;
 
   @Output() figureCaptured = new EventEmitter<Figure>();
 
-  playerColor: Figure['color'] = 'black';
   chessField: ChessField = new ChessField();
   currentSquareTarget: Square | null = null;
   dragTimer: boolean = false;
@@ -45,7 +48,17 @@ export class ChessFieldComponent implements OnInit {
     return this.chessField.fieldLetters;
   }
 
-  constructor() { }
+  get clientPlayer(): UserInfo | undefined {
+    if (!this.socket.userInfo) return;
+    const { id } = this.socket.userInfo
+    return this.room?.players.find(player => player.id === id);
+  }
+
+  get playerColor(): Figure['color'] {
+    return this.clientPlayer?.color || 'white';
+  }
+
+  constructor(private socket: WebsocketDecorator) { }
 
   useNotation() {
     // transform notation into squares.

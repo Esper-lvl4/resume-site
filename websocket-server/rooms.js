@@ -14,11 +14,11 @@ function handleRooms(socket) {
   });
 
   socket.on('getRoom', data => {
-    if (!data || typeof data !== 'object' || typeof data.id !== 'number') {
+    if (!data || typeof data !== 'object' || typeof data.gameId !== 'number') {
       socket.emit('roomSearchResult');
       return;
     }
-    const room = roomList.getRoom(data.id);
+    const room = roomList.getRoom(data.gameId);
     socket.emit('roomSearchResult', room?.prepareToSend());
   });
 

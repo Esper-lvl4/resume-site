@@ -5,6 +5,8 @@
   ></app-chess-figure>
 </div>
 <app-chess-field
+  *ngIf="room"
+  [room]="room"
   (figureCaptured)="figureCaptured($event)"
 ></app-chess-field>
 <div class="captured-figures">

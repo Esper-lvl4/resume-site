@@ -1,6 +1,7 @@
 export interface UserInfo {
   id: string;
   name: string;
+  color: 'white' | 'black';
 }
 
 export function isUserInfo(item: any): item is UserInfo {

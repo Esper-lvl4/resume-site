@@ -7,6 +7,7 @@ import { socket } from "../websocket/connectWebsocket";
 })
 export class WebsocketDecorator {
   userInfo: UserInfo | null = null;
+  gameId: number = 0;
 
   constructor() {}
 
@@ -30,6 +31,9 @@ export class WebsocketDecorator {
     const info: { [key: string]: any } = {
       id: this.userInfo?.id,
     };
+    if (this.gameId !== 0) {
+      info.gameId = this.gameId;
+    }
     if (typeof data === 'object' && data) {
       Object.keys(data).forEach(key => {
         info[key] = data[key];
