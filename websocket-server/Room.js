@@ -1,4 +1,4 @@
-const GameNotation = require("./gameNotation");
+const GameNotation = require("./GameNotation");
 
 class Room {
   id = 0;
