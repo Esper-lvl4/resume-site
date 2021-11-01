@@ -8,7 +8,7 @@
     "start": "node websocket-server.js"
   },
   "dependencies": {
-    "websocket-decorator-server": "git+https://github.com/Esper-lvl4/websocket-decorator-server.git"
+    "websocket-decorator-server": "https://github.com/Esper-lvl4/websocket-decorator-server.git"
   },
   "devDependencies": {
     "nodemon": "^2.0.14"
