@@ -28,7 +28,7 @@
     "express": "^4.15.2",
     "rxjs": "~6.6.0",
     "tslib": "^2.3.0",
-    "websocket-decorator": "git+https://github.com/Esper-lvl4/websocket-decorator.git",
+    "websocket-decorator": "https://github.com/Esper-lvl4/websocket-decorator.git",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
