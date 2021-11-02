@@ -15,7 +15,6 @@ export function app(): express.Express {
     process.cwd(),
     `${process.env.NODE_ENV === 'production' ? 'angular-front/' : ''}dist/ghost-chess/browser`
   );
-  console.log('Dist folder: ', distFolder);
   const indexHtml = existsSync(join(distFolder, 'index.original.html')) ? 'index.original.html' : 'index';
 
   // Our Universal express-engine (found @ https://github.com/angular/universal/tree/master/modules/express-engine)
