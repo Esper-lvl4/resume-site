@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "Resume Playground",
-      script: "node ./angular-front/dist/ghost-chess/server/main.js",
+      script: "./angular-front/dist/ghost-chess/server/main.js",
       env_production: {
         NODE_ENV: "production",
       },
@@ -12,7 +12,7 @@ module.exports = {
     },
     {
       name: "Resume Playground Websocket",
-      script: "node ./websocket-server/websocket-server.js",
+      script: "./websocket-server/websocket-server.js",
       env_production: {
         NODE_ENV: "production",
       },
