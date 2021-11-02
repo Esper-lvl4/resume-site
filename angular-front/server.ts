@@ -13,7 +13,7 @@ export function app(): express.Express {
   const server = express();
   const distFolder = join(
     process.cwd(),
-    `${process.env.NODE_ENV === 'production' ? 'resume-site/' : ''}dist/ghost-chess/browser`
+    `${process.env.NODE_ENV === 'production' ? 'angular-front/' : ''}dist/ghost-chess/browser`
   );
   console.log('Dist folder: ', distFolder);
   const indexHtml = existsSync(join(distFolder, 'index.original.html')) ? 'index.original.html' : 'index';
