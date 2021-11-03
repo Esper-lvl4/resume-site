@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  websocketServerOrigin: 'esper-playground.ru',
+  websocketServerUrl: 'wss://esper-playground.ru/websocket/',
 };
