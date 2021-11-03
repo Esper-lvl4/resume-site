@@ -6,7 +6,7 @@ const { websocketServerOrigin } = environment;
 export let socket: SocketDecorator | null = null;
 
 export const connectSocket = () => {
-  socket = connectToWebsocket(`ws://${websocketServerOrigin}:5000`);
+  socket = connectToWebsocket(`wss://${websocketServerOrigin}:5000`);
 };
 
 export default connectSocket;

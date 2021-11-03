@@ -32,10 +32,6 @@ export function app(): express.Express {
     maxAge: '1y'
   }));
 
-  server.get('/.well-known/pki-validation/A490D97E98CAE88597C303A3C54A8697.txt', express.static(distFolder, {
-    maxAge: '1y'
-  }));
-
   // All regular routes use the Universal engine
   server.get('*', (req, res) => {
     res.render(indexHtml, { req, providers: [{ provide: APP_BASE_HREF, useValue: req.baseUrl }] });
