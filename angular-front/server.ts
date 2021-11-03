@@ -32,7 +32,7 @@ export function app(): express.Express {
     maxAge: '1y'
   }));
 
-  server.get('/.well-known/pki-validation/*.*', express.static(distFolder, {
+  server.get('/.well-known/pki-validation/A490D97E98CAE88597C303A3C54A8697.txt', express.static(distFolder, {
     maxAge: '1y'
   }));
 
