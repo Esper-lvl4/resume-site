@@ -1,12 +1,13 @@
 import { UserInfo } from "./UserInfo";
 
 export interface RoomInfo {
-  id: number
-  name: string
-  players: UserInfo[],
-  gameNotation: string[],
-  gameHasStarted: boolean,
-  maxPlayers: number,
+  id: number;
+  name: string;
+  players: UserInfo[];
+  gameNotation: string[];
+  gameHasStarted: boolean;
+  maxPlayers: number;
+  hostId: string;
 }
 
 export function isRoomInfo(item: any): item is RoomInfo {
@@ -16,7 +17,8 @@ export function isRoomInfo(item: any): item is RoomInfo {
     && Array.isArray(item.players)
     && Array.isArray(item.gameNotation)
     && typeof item.gameHasStarted === 'boolean'
-    && typeof item.maxPlayers === 'number';
+    && typeof item.maxPlayers === 'number'
+    && typeof item.hostId === 'string';
 }
 
 export default RoomInfo;

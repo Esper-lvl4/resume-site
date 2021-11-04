@@ -3,6 +3,7 @@ const GameNotation = require("./GameNotation");
 class Room {
   id = 0;
   name = '';
+  hostId = '';
   players = [];
   gameNotation = new GameNotation();
   timer = 600;
@@ -50,7 +51,17 @@ class Room {
 
   startGame() {
     if (!this.roomIsFull || this.gameHasStarted) return false;
+    let takenColor = '';
+    this.players.forEach(player => {
+      if (takenColor) {
+        player.color = takenColor === 'white' ? 'black' : 'white';
+        return;
+      }
+      takenColor = !!Math.round(Math.random()) ? 'white' : 'black';
+      player.color = takenColor;
+    });
     this._started = true;
+    return true;
   }
   
   finishGame() {
@@ -94,6 +105,7 @@ class Room {
       gameNotation: this.gameNotation.prepareToSend(),
       gameHasStarted: this.gameHasStarted,
       maxPlayers: this._maxPlayers,
+      hostId: this.hostId,
     }
   }
 }
@@ -118,6 +130,7 @@ class RoomList {
     if (this.counter >= 10000) this.counter = 0;
     const room = new Room(id, name);
     room.join(user);
+    room.hostId = user.id;
     this.list.push(room);
     return room;
   }
@@ -136,6 +149,8 @@ class RoomList {
     const successfullyLeft = room.leave(user);
     if (room.players.length === 0) {
       this.list.splice(index, 1);
+    } else if (user.id === room.hostId) {
+      room.hostId = room.players[0].id;
     }
     return successfullyLeft ? room : false;
   }
@@ -143,7 +158,7 @@ class RoomList {
   startGameInRoom(id) {
     const room = this.list.find(currentRoom => currentRoom.id === id);
     if (!room) return false;
-    const startResult = room.startGame()
+    const startResult = room.startGame();
     return startResult ? room : false;
   }
 

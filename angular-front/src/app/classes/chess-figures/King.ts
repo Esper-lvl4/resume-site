@@ -4,6 +4,7 @@ export class KingFigure extends Figure {
   constructor(color: Figure['color']) {
     super({
       name: 'King',
+      nameLetter: 'K',
       color,
       isCoward: true,
       movement: new FigureMovement({

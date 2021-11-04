@@ -47,6 +47,7 @@ export interface CoordinatesMap {
 
 export class Figure extends Events {
   name: string;
+  nameLetter: string = '';
   color: 'white' | 'black' = 'white';
   image: string = '';
   weight: number = 1;
@@ -74,6 +75,7 @@ export class Figure extends Events {
   constructor(info: {
     name: Figure['name'],
     movement: Figure['movement'],
+    nameLetter?: Figure['nameLetter'],
     weight?: Figure['weight'],
     color?: Figure['color'],
     image?: Figure['image'],
@@ -104,6 +106,7 @@ export class Figure extends Events {
       this.ignoreCollision = info.ignoreCollision;
     }
     if (typeof info.isCoward === 'boolean') this.isCoward = info.isCoward;
+    if (typeof info.nameLetter === 'string') this.nameLetter = info.nameLetter;
 
     if (info.captureMovement) this.captureMovement = info.captureMovement;
   };

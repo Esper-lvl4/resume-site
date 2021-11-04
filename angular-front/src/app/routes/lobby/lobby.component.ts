@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import RoomInfo, { isRoomInfo } from 'src/app/classes/RoomInfo';
 import { WebsocketDecorator } from 'src/app/injectables/websocket';
 
@@ -30,7 +31,15 @@ export class LobbyComponent implements OnInit {
     return players.length === maxPlayers;
   }
 
-  constructor(private socket: WebsocketDecorator) { }
+  get isHost(): boolean {
+    if (!this.currentRoom || !this.socket.userInfo) return false;
+    return this.currentRoom.hostId === this.socket.userInfo.id;
+  }
+
+  constructor(
+    private router: Router,
+    private socket: WebsocketDecorator,
+  ) { }
 
   isClientSide(): boolean {
     return typeof window !== 'undefined';
@@ -58,6 +67,11 @@ export class LobbyComponent implements OnInit {
     this.socket.emit('leaveRoom', { roomId: this.currentRoom.id });
   }
 
+  startGame() {
+    if (!this.currentRoom) return;
+    this.socket.emit('startGame', { roomId: this.currentRoom.id });
+  }
+
   setCurrentRoom(room: any) {
     if (!isRoomInfo(room)) {
       this.currentRoom = null;
@@ -66,6 +80,12 @@ export class LobbyComponent implements OnInit {
     }
     this.currentRoom = room;
     this.socket.gameId = room.id;
+    this.goToGameRoute();
+  }
+
+  goToGameRoute() {
+    if (!this.currentRoom?.gameHasStarted) return;
+    this.router.navigate(['game', this.currentRoom.id.toString()]);
   }
 
   ngOnInit(): void {
@@ -78,6 +98,9 @@ export class LobbyComponent implements OnInit {
     this.socket.on('refreshRoomList', roomList => {
       if (!Array.isArray(roomList)) return;
       this.roomList = roomList.filter(room => isRoomInfo(room));
+      if (!this.currentRoom) return;
+      const currentRoom = this.roomList.find(room => room.id === this.currentRoom?.id);
+      if (currentRoom) this.setCurrentRoom(currentRoom);
     });
 
     this.socket.on('joinedRoom', room => {
@@ -88,7 +111,12 @@ export class LobbyComponent implements OnInit {
       this.setCurrentRoom(null);
     });
 
+    this.socket.on('updateCurrentGame', room => {
+      if (isRoomInfo(room)) this.setCurrentRoom(room);
+    });
+
     this.socket.emit('getRoomList');
+    this.socket.emit('checkForUserRoom');
   }
 
 }

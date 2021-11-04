@@ -58,11 +58,94 @@ export class ChessFieldComponent implements OnInit {
     return this.clientPlayer?.color || 'white';
   }
 
+  get gameNotation(): string[] {
+    return this.room.gameNotation || [];
+  }
+
+  get currentTurn(): Figure['color'] {
+    return this.gameNotation.length % 2 === 0 ? 'white' : 'black';
+  }
+
   constructor(private socket: WebsocketDecorator) { }
 
   useNotation() {
     // transform notation into squares.
+    this.gameNotation.forEach(move => {
+
+    });
   }
+
+  transformMoveNotation(originalMove: string, color: Figure['color']): {
+    targetSquare: Square,
+    startingSquare: Square,
+  } {
+    if (originalMove.length === 0) {
+      throw new Error('Could not parse game notation - one of the moves is empty!');
+    }
+    // e1     - move pawn to e1
+    // Be1    - move Bishop to e1
+    // Rdf3   - move Rook at d file to f3
+    // R1a3   - move Rook at 1'st row to a3
+    // Qh4e1  - move Queen at h4 to e1
+    // exd5   - take with pawn to d5
+    // Bxe5   - take with Bishop to e5
+    // Rdxf3  - take with Rook at d file to f3
+    // R1xa3  - take with Rook on 1-st row to a3
+    // Qh4xe1 - take with Queen on h4 to e1
+    // O-O    - castle king side
+    // O-O-O  - castle queen side
+    // e8=Q   - pawn move to e8 and promotes to Queen
+    // e7+    - move pawn to e7 which checks the King
+    // Common parts:
+    // 1) Last two symbols are target square always, except for castle move and promotion;
+    // 2) First symbol is always the name of a figure, except for castle move, promotion and pawn move;
+    // 3) If move is a capture, it has "x" simbol in it, after which come target square.
+    if (originalMove === 'O-O' || originalMove === 'O-O-O') {
+      const startingSquare = this.chessField
+        .findSquare(square => square.figure?.name === 'King' && square.figure.color === color);
+      if (!startingSquare) throw new Error('Could not make castle move - King was not found!');
+      if (!startingSquare.figure?.didNotMove) throw new Error('Could not make castle move - King already did move!');
+      if (originalMove === 'O-O') {
+        startingSquare.figure.possibleMoves[];
+      }
+      return {};
+    }
+    const captureSymbol = 'x';
+    const promotionSymbol = '=';
+    const checkSymbol = '+';
+    const isCapture = originalMove.match(captureSymbol);
+    const isPromotion = originalMove.match(promotionSymbol);
+    const isCheck = originalMove[originalMove.length - 1] === checkSymbol;
+    let promotionInfo = '';
+    let move = originalMove;
+    if (isCapture) move = move.split(captureSymbol).join('');
+    if (isCheck) move = move.slice(0, -1);
+    if (isPromotion) {
+      const parts = move.split(promotionSymbol);
+      promotionInfo = parts[parts.length - 1];
+      move = move.replace(`=${ promotionInfo }`, '');
+    }
+
+    const figureName = move[0].toUpperCase() === move[0] ? move[0] : '';
+    const targetSquare = isPromotion ? move.slice(-4, -2) : move.slice(-2);
+    const initialInfo = isCapture ? move.split(captureSymbol)[0].slice(1) : move.slice(1, -2);
+    const startingSquare = {
+      x: '',
+      y: 0,
+    };
+    if (initialInfo.length === 1) {
+      const isNumber = !isNaN(Number(initialInfo))
+      startingSquare.x = isNumber ? '' : initialInfo;
+      startingSquare.y = isNumber ? Number(initialInfo) : 0;
+    }
+
+    return {
+      startingSquare: {},
+      targetSquare: {}
+    };
+  }
+
+  automaticMove() {}
 
   generateField() {
     const figures = this.chessField.generate(this.playerColor);

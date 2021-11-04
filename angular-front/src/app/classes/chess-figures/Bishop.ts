@@ -4,6 +4,7 @@ export class BishopFigure extends Figure {
   constructor(color: Figure['color']) {
     super({
       name: 'Bishop',
+      nameLetter: 'B',
       color,
       weight: 3,
       movement: new FigureMovement({

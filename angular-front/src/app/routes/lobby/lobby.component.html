@@ -28,9 +28,9 @@
       Leave room
     </app-default-button>
     <app-default-button
-      *ngIf="isInRoom"
+      *ngIf="isInRoom && isHost"
       [disabled]="!roomIsFull"
-      (click)="leaveRoom()"
+      (click)="startGame()"
     >
       Start game
     </app-default-button>

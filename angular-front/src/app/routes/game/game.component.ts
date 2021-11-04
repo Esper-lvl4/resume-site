@@ -49,6 +49,10 @@ export class GameComponent implements OnInit {
       this.socket.loadUserInfo();
       if (!socket) connectSocket();
 
+      this.socket.on('showError', error => {
+        console.error(error);
+      });
+
       this.socket.on('saveUser', data => {
         if (!isUserInfo(data)) return;
         this.saveUserInfo(data);

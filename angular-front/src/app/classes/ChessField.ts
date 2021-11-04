@@ -89,4 +89,16 @@ export class ChessField extends Events {
   findSquare(handler: (square: Square) => boolean): Square | undefined {
     return this.squares.find(handler);
   }
+
+  findSquareByCoordinates(x: string | number, y: number) {
+    return typeof x === 'string'
+      ? this.findSquare(square => {
+          const { xLetter, y: squareY } = square.coordinates;
+          return xLetter === x && squareY === y;
+        })
+      : this.findSquare(square => {
+          const { x: squareX, y: squareY } = square.coordinates;
+          return squareX === x && squareY === y;
+        });
+  }
 }

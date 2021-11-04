@@ -4,6 +4,7 @@ export class QueenFigure extends Figure {
   constructor(color: Figure['color']) {
     super({
       name: 'Queen',
+      nameLetter: 'Q',
       color,
       weight: 9,
       movement: new FigureMovement({

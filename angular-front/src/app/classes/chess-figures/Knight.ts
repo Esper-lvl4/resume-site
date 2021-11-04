@@ -4,6 +4,7 @@ export class KnightFigure extends Figure {
   constructor(color: Figure['color']) {
     super({
       name: 'Knight',
+      nameLetter: 'N',
       color,
       weight: 3,
       mustChangeDirection: true,

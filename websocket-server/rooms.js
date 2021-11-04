@@ -33,17 +33,17 @@ function handleRooms(socket) {
 
   socket.on('createRoom', data => {
     if (!data || typeof data !== 'object') {
-      socket.emit('failedToCreateRoom', 'Data was not provided');
+      socket.emit('showError', 'Failed to create room: Data was not provided');
       return;
     }
     const { name, id } = data;
     const user = userList.findUser(id);
     if (!user) {
-      socket.emit('failedToCreateRoom', 'User was not found');
+      socket.emit('showError', 'Failed to create room: User was not found');
     }
     const room = roomList.hostRoom(name, user);
     if (!room) {
-      socket.emit('failedToCreateRoom', 'Room name was not provided');
+      socket.emit('showError', 'Failed to create room: Room name was not provided');
       return;
     }
     refreshAllUsers();
@@ -52,14 +52,14 @@ function handleRooms(socket) {
 
   socket.on('joinRoom', data => {
     if (!data || typeof data !== 'object') {
-      socket.emit('failedToJoinRoom', 'Data was not provided');
+      socket.emit('showError', 'Failed to join room: Data was not provided');
       return;
     }
     const { id, roomId } = data;
     const user = userList.findUser(id);
     const room = roomList.joinRoom(roomId, user);
     if (!room) {
-      socket.emit('failedToJoinRoom', 'Either room was not found or was full, or user was not provided');
+      socket.emit('showError', 'Failed to join room: Either room was not found or was full, or user was not provided');
       return;
     }
     refreshAllUsers();
@@ -68,14 +68,14 @@ function handleRooms(socket) {
 
   socket.on('leaveRoom', data => {
     if (!data || typeof data !== 'object') {
-      socket.emit('failedToLeaveRoom', 'Data was not provided');
+      socket.emit('showError', 'Failed to leave room: Data was not provided');
       return;
     }
     const { id, roomId } = data;
     const user = userList.findUser(id);
     const room = roomList.leaveRoom(roomId, user);
     if (!room) {
-      socket.emit('failedToLeaveRoom', 'Either room was not found or user was not provided or user is not in any room');
+      socket.emit('showError', 'Failed to leave room: Either room was not found or user was not provided or user is not in any room');
       return;
     }
     refreshAllUsers();
@@ -84,13 +84,13 @@ function handleRooms(socket) {
 
   socket.on('startGame', data => {
     if (!data || typeof data !== 'object') {
-      socket.emit('failedToStartGame', 'Data was not provided');
+      socket.emit('showError', 'Failed to start game: Data was not provided');
       return;
     }
-    const { id } = data;
-    const room = roomList.startGameInRoom(id);
+    const { roomId } = data;
+    const room = roomList.startGameInRoom(roomId);
     if (!room) {
-      socket.emit('failedToStartGame', 'Either room was not found or it\'s full');
+      socket.emit('showError', 'Failed to start game: Either room was not found or it\'s not full');
       return;
     }
     socket.emit('updateCurrentGame', room.prepareToSend());
