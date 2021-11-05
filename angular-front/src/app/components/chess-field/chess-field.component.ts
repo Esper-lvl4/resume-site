@@ -9,6 +9,7 @@ import { ChessField } from '../../classes/ChessField';
 import RoomInfo from 'src/app/classes/RoomInfo';
 import { WebsocketDecorator } from 'src/app/injectables/websocket';
 import UserInfo from 'src/app/classes/UserInfo';
+import { ThrowStmt } from '@angular/compiler';
 
 @Component({
   selector: 'app-chess-field',
@@ -68,17 +69,44 @@ export class ChessFieldComponent implements OnInit {
 
   constructor(private socket: WebsocketDecorator) { }
 
+  convertNotationStringToArray(inputNotation: string): string[] {
+    const enPassantNotation = 'e.p.';
+    const notation = inputNotation
+      .replace(/\s\s/g, ' ')
+      .replace(/[!?]/g, '')
+      .replace(/0-0/g, 'O-O')
+      .replace(/0-0-0/g, 'O-O-O');
+      console.log(notation.slice(-20));
+    const parts = notation.split(/\s\d{1,2}\.\s/);
+    const result: string[] = [];
+    parts[0] = parts[0].slice(3);
+    parts.forEach(part => {
+      const moves = part.split(/\s/);
+      moves.forEach(move => {
+        if (move === enPassantNotation) {
+          result[result.length - 1] = result[result.length - 1] + ' ' + enPassantNotation;
+          return;
+        }
+        result.push(move);
+      });
+    });
+    return result;
+  }
+
   useNotation() {
     // transform notation into squares.
-    this.gameNotation.forEach(move => {
-
+    this.gameNotation.forEach((move, index) => {
+      const info = this.transformMoveNotation(move, index % 2 === 0 ? 'white' : 'black');
+      this.automaticMove(info);
     });
   }
 
   transformMoveNotation(originalMove: string, color: Figure['color']): {
     targetSquare: Square,
     startingSquare: Square,
+    promotionInfo: string,
   } {
+    console.log(originalMove);
     if (originalMove.length === 0) {
       throw new Error('Could not parse game notation - one of the moves is empty!');
     }
@@ -96,6 +124,7 @@ export class ChessFieldComponent implements OnInit {
     // O-O-O  - castle queen side
     // e8=Q   - pawn move to e8 and promotes to Queen
     // e7+    - move pawn to e7 which checks the King
+    // exd6 e.p. - pawn's en passant.
     // Common parts:
     // 1) Last two symbols are target square always, except for castle move and promotion;
     // 2) First symbol is always the name of a figure, except for castle move, promotion and pawn move;
@@ -105,21 +134,37 @@ export class ChessFieldComponent implements OnInit {
         .findSquare(square => square.figure?.name === 'King' && square.figure.color === color);
       if (!startingSquare) throw new Error('Could not make castle move - King was not found!');
       if (!startingSquare.figure?.didNotMove) throw new Error('Could not make castle move - King already did move!');
-      if (originalMove === 'O-O') {
-        startingSquare.figure.possibleMoves[];
+      const yCoord = color === 'white' ? 1 : this.chessField.height;
+      const xCoord = originalMove === 'O-O' ? 'g' : 'c' ;
+      this.handleKingSelection(startingSquare, startingSquare.figure);
+      const isValidMove = startingSquare.figure.moveIsPossible(xCoord, yCoord);
+      if (!isValidMove) {
+        console.error(JSON.stringify(startingSquare.figure.possibleMoves));
+        throw new Error('Could not make a castle move - this move is not valid!');
       }
-      return {};
+      const targetSquare = this.chessField.findSquareByCoordinates(xCoord, yCoord);
+      if (!targetSquare) throw new Error('Could not make a castle move - target square could not be found!');
+      return {
+        startingSquare,
+        targetSquare: targetSquare,
+        promotionInfo: '',
+      };
     }
     const captureSymbol = 'x';
     const promotionSymbol = '=';
     const checkSymbol = '+';
+    const checkMateSymbol = '#';
+    const enPassantNotation = ' e.p.';
     const isCapture = originalMove.match(captureSymbol);
     const isPromotion = originalMove.match(promotionSymbol);
     const isCheck = originalMove[originalMove.length - 1] === checkSymbol;
+    const isCheckMate = originalMove[originalMove.length - 1] === checkMateSymbol;
+    const isEnPassant = originalMove.match(enPassantNotation);
     let promotionInfo = '';
     let move = originalMove;
     if (isCapture) move = move.split(captureSymbol).join('');
-    if (isCheck) move = move.slice(0, -1);
+    if (isCheck || isCheckMate) move = move.slice(0, -1);
+    if (isEnPassant) move = move.slice(0, -5);
     if (isPromotion) {
       const parts = move.split(promotionSymbol);
       promotionInfo = parts[parts.length - 1];
@@ -127,31 +172,104 @@ export class ChessFieldComponent implements OnInit {
     }
 
     const figureName = move[0].toUpperCase() === move[0] ? move[0] : '';
-    const targetSquare = isPromotion ? move.slice(-4, -2) : move.slice(-2);
-    const initialInfo = isCapture ? move.split(captureSymbol)[0].slice(1) : move.slice(1, -2);
-    const startingSquare = {
-      x: '',
-      y: 0,
-    };
-    if (initialInfo.length === 1) {
-      const isNumber = !isNaN(Number(initialInfo))
-      startingSquare.x = isNumber ? '' : initialInfo;
-      startingSquare.y = isNumber ? Number(initialInfo) : 0;
+    const targetSquareInfo = move.slice(-2);
+    const startingSquareInfo = move.slice(figureName ? 1 : 0, -2);
+    let startX = '';
+    let startY = 0;
+    const targetX = targetSquareInfo[0];
+    const targetY = Number(targetSquareInfo[1]);
+
+    if (startingSquareInfo.length === 1) {
+      const isNumber = !isNaN(Number(startingSquareInfo))
+      startX = isNumber ? '' : startingSquareInfo;
+      startY = isNumber ? Number(startingSquareInfo) : 0;
+    } else if (startingSquareInfo.length === 2) {
+      startX = startingSquareInfo[0];
+      startY = Number(startingSquareInfo[1]);
     }
 
+    let startingSquare: Square | undefined;
+    const targetSquare = this.chessField
+      .findSquareByCoordinates(targetX, targetY);
+
+    if (startX && !isNaN(startY) && startY) {
+      startingSquare = this.chessField
+        .findSquareByCoordinates(startX, startY);
+    } else {
+      const noNeedToMatch = !startX && (!startY || isNaN(startY));
+      startingSquare = this.chessField.findSquare(square => {
+        const xMatches = startX && square.coordinates.xLetter === startX;
+        const yMatches = !isNaN(startY) && startY && square.coordinates.y === startY;
+        return (xMatches || yMatches || noNeedToMatch)
+          && square.figure?.nameLetter === figureName
+          && square.figure.color === color
+          && square.figure.moveIsPossible(targetX, targetY);
+      });
+      if (originalMove === 'axb5') {
+        console.log(startingSquare, startX, startingSquareInfo, move);
+      }
+    }
+    if (!startingSquare || !targetSquare) {
+      console.error('start: ', startingSquare, 'target: ', targetSquare);
+      console.error(
+        'startX:', startX,
+        '\nstartY:', startY,
+        '\ntargetX:', targetX,
+        '\ntargetY:', targetY,
+        '\nfigureName:',figureName,
+        '\ncolor:', color,
+      );
+      throw new Error(`Could not make a move: either target or starting square could not be determined!`);
+    }
     return {
-      startingSquare: {},
-      targetSquare: {}
+      startingSquare,
+      targetSquare,
+      promotionInfo: isPromotion ? promotionInfo : '',
     };
   }
 
-  automaticMove() {}
+  automaticMove(info: {
+    startingSquare: Square,
+    targetSquare: Square,
+    promotionInfo: string,
+  }) {
+    const { startingSquare, targetSquare, promotionInfo } = info;
+    const capturedFigure = targetSquare.figure;
+    targetSquare.figure = startingSquare.figure;
+    startingSquare.figure = null;
+    if (targetSquare.figure instanceof Figure) {
+      targetSquare.figure.emit('onMove', {
+        startCoordinates: startingSquare.coordinates,
+        endCoordinates: targetSquare.coordinates,
+        startSquare: startingSquare,
+        endSquare: targetSquare,
+        automatic: true,
+        promotionInfo: promotionInfo,
+      });
+      this.chessField.emit('onMove', {
+        startCoordinates: startingSquare.coordinates,
+        endCoordinates: targetSquare.coordinates,
+        startSquare: startingSquare,
+        endSquare: targetSquare,
+        figure: targetSquare.figure,
+        automatic: true,
+        promotionInfo: promotionInfo,
+      });
+      targetSquare.figure.didNotMove = false;
+    }
+    if (capturedFigure) {
+      this.figureCaptured.emit(capturedFigure);
+    }
+    this.markPossibleMovesForAllFigures();
+  }
 
   generateField() {
     const figures = this.chessField.generate(this.playerColor);
     this.addEventsToFigures(figures);
     this.markPossibleMovesForAllFigures();
-    this.chessField.on('onMove', () => this.markPossibleMovesForAllFigures());
+    this.chessField.on('onMove', info => {
+      if (!info.automatic) this.markPossibleMovesForAllFigures();
+    });
   }
 
   addEventsToFigures(eventFigures: Figure[]) {
@@ -159,7 +277,7 @@ export class ChessFieldComponent implements OnInit {
       if (figure.name === 'Pawn') {
         figure.on('onMove', (info) => {
           if (typeof info !== 'object' || !info) return;
-          const { startCoordinates, endCoordinates, endSquare } = info;
+          const { startCoordinates, endCoordinates, endSquare, automatic, promotionInfo } = info;
           if (
             startCoordinates instanceof SquareCoordinates
             && endCoordinates instanceof SquareCoordinates
@@ -170,6 +288,8 @@ export class ChessFieldComponent implements OnInit {
               endCoordinates,
               endSquare,
               figure,
+              automatic,
+              promotionInfo,
             });
           }
         });
@@ -793,8 +913,10 @@ export class ChessFieldComponent implements OnInit {
     endCoordinates: SquareCoordinates,
     endSquare: Square,
     figure: Figure,
+    automatic?: boolean,
+    promotionInfo?: string,
   }) {
-    const { figure } = info;
+    const { figure, automatic, promotionInfo } = info;
     if (figure.didNotMove) return this.handleFirstPawnMove(info);
     const { x: startX } = info.startCoordinates;
     const { x: endX, y: endY } = info.endCoordinates;
@@ -805,6 +927,16 @@ export class ChessFieldComponent implements OnInit {
       (figure.color === 'black' && endY === 1)
       || (figure.color === 'white' && endY === this.chessField.height)
     ) {
+      if (automatic && promotionInfo) {
+        const promotedFigure = (figure.color === 'white'
+          ? this.chessField.promoteVariantsWhite
+          : this.chessField.promoteVariantsBlack
+        ).find(variant => variant.nameLetter === promotionInfo);
+        if (!promotedFigure) return;
+        info.endSquare.figure = promotedFigure.clone(figure.color);
+        promotedFigure.didNotMove = false;
+        return;
+      }
       this.openPromotePopup(figure, info.endSquare);
     }
   }
@@ -1025,11 +1157,23 @@ export class ChessFieldComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (Array.isArray(this.notation) && this.notation.length !== 0) {
-      this.useNotation();
-      return;
-    }
     this.generateField();
+    const normalGame = `1. e4 e5 2. Nf3 Nc6 3. Bb5 a6
+    4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7
+    11. c4 c6 12. cxb5 axb5 13. Nc3 Bb7 14. Bg5 b4 15. Nb1 h6 16. Bh4 c5 17. dxe5
+    Nxe4 18. Bxe7 Qxe7 19. exd6 Qf6 20. Nbd2 Nxd6 21. Nc4 Nxc4 22. Bxc4 Nb6
+    23. Ne5 Rae8 24. Bxf7+ Rxf7 25. Nxf7 Rxe1+ 26. Qxe1 Kxf7 27. Qe3 Qg5 28. Qxg5
+    hxg5 29. b3 Ke6 30. a3 Kd6 31. axb4 cxb4 32. Ra5 Nd5 33. f3 Bc8 34. Kf2 Bf5
+    35. Ra7 g6 36. Ra6+ Kc5 37. Ke1 Nf4 38. g3 Nxh3 39. Kd2 Kb5 40. Rd6 Kc5 41. Ra6
+    Nf2 42. g4 Bd3 43. Re6`;
+    const enPassantGame = `1. e4 e6
+    2. e5 d5
+    3. exd6 e.p.`;
+    const promotionGame = `1. d4 d5 2. c4 c6 3. Nc3 Nf6 4. Nf3 a6 5. e3 b5 6. c5 g6 7. Bd3 Bg4 8. h3 Bxf3 9. Qxf3 Bg7 10. g4 e5! 11. Qg3 Nfd7 12. Ne2 Qe7 13. 0-0 h5 14. f3 Nf8 15. a4 b4 16. Bd2 a5 17. e4 dxe4 18. Bxe4 Ne6 19. Rae1 h4 20. Qf2 0-0 21. f4 exd4 22. f5!? Nxc5 23. Bb1 d3 24. Nc1 Qd6 25. Ba2?? Bd4 26. Be3 Ne4 27. Qxh4 g5 28. Qh5 d2 29. f6 Qxf6 30. Bxd4 Qxd4+ 31. Kg2  dxe1=N+`;
+    this.room.gameNotation = this.convertNotationStringToArray(promotionGame);
+    if (Array.isArray(this.gameNotation) && this.gameNotation.length !== 0) {
+      this.useNotation();
+    }
   }
 
 }

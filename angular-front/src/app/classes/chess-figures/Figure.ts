@@ -1,4 +1,5 @@
 import { Events } from "src/app/classes/Events";
+import { defaultLetters } from "../Square";
 
 export class FigureMovement {
   top: number = 0;
@@ -128,6 +129,14 @@ export class Figure extends Events {
 
   getPossibleMove(x: number, y: number): string | false {
     return (this.possibleMoves[x] && this.possibleMoves[x][y]) || false;
+  }
+
+  moveIsPossible(x: string | number, y: number): boolean {
+    const targetX = typeof x === 'string'
+      ? defaultLetters.findIndex(letter => letter === x) + 1
+      : x;
+    if (targetX === 0) return false;
+    return !!(this.possibleMoves[targetX] && this.possibleMoves[targetX][y]);
   }
 
   clearPossibleMoves() {

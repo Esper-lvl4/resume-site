@@ -237,9 +237,18 @@ class ChessField extends _Events__WEBPACK_IMPORTED_MODULE_1__.Events {
         this.fieldLetters = _Square__WEBPACK_IMPORTED_MODULE_2__.defaultLetters.slice(0, width);
     }
     get promoteVariants() {
+        return this.playerColor === 'white' ? this.promoteVariantsWhite : this.promoteVariantsBlack;
+    }
+    get promoteVariantsWhite() {
         return [
-            new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.QueenFigure(this.playerColor), new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.RookFigure(this.playerColor),
-            new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.BishopFigure(this.playerColor), new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.KnightFigure(this.playerColor),
+            new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.QueenFigure('white'), new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.RookFigure('white'),
+            new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.BishopFigure('white'), new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.KnightFigure('white'),
+        ];
+    }
+    get promoteVariantsBlack() {
+        return [
+            new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.QueenFigure('black'), new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.RookFigure('black'),
+            new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.BishopFigure('black'), new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.KnightFigure('black'),
         ];
     }
     generate(playerColor) {
@@ -303,6 +312,17 @@ class ChessField extends _Events__WEBPACK_IMPORTED_MODULE_1__.Events {
     }
     findSquare(handler) {
         return this.squares.find(handler);
+    }
+    findSquareByCoordinates(x, y) {
+        return typeof x === 'string'
+            ? this.findSquare(square => {
+                const { xLetter, y: squareY } = square.coordinates;
+                return xLetter === x && squareY === y;
+            })
+            : this.findSquare(square => {
+                const { x: squareX, y: squareY } = square.coordinates;
+                return squareX === x && squareY === y;
+            });
     }
 }
 
@@ -469,6 +489,7 @@ class BishopFigure extends _Figure__WEBPACK_IMPORTED_MODULE_0__.Figure {
     constructor(color) {
         super({
             name: 'Bishop',
+            nameLetter: 'B',
             color,
             weight: 3,
             movement: new _Figure__WEBPACK_IMPORTED_MODULE_0__.FigureMovement({
@@ -498,6 +519,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "Figure": () => (/* binding */ Figure)
 /* harmony export */ });
 /* harmony import */ var src_app_classes_Events__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! src/app/classes/Events */ 5778);
+/* harmony import */ var _Square__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Square */ 1239);
+
 
 class FigureMovement {
     constructor(info) {
@@ -590,6 +613,8 @@ class Figure extends src_app_classes_Events__WEBPACK_IMPORTED_MODULE_0__.Events 
         }
         if (typeof info.isCoward === 'boolean')
             this.isCoward = info.isCoward;
+        if (typeof info.nameLetter === 'string')
+            this.nameLetter = info.nameLetter;
         if (info.captureMovement)
             this.captureMovement = info.captureMovement;
     }
@@ -609,6 +634,14 @@ class Figure extends src_app_classes_Events__WEBPACK_IMPORTED_MODULE_0__.Events 
     }
     getPossibleMove(x, y) {
         return (this.possibleMoves[x] && this.possibleMoves[x][y]) || false;
+    }
+    moveIsPossible(x, y) {
+        const targetX = typeof x === 'string'
+            ? _Square__WEBPACK_IMPORTED_MODULE_1__.defaultLetters.findIndex(letter => letter === x) + 1
+            : x;
+        if (targetX === 0)
+            return false;
+        return !!(this.possibleMoves[targetX] && this.possibleMoves[targetX][y]);
     }
     clearPossibleMoves() {
         this.possibleMoves = {};
@@ -654,6 +687,7 @@ class KingFigure extends _Figure__WEBPACK_IMPORTED_MODULE_0__.Figure {
     constructor(color) {
         super({
             name: 'King',
+            nameLetter: 'K',
             color,
             isCoward: true,
             movement: new _Figure__WEBPACK_IMPORTED_MODULE_0__.FigureMovement({
@@ -692,6 +726,7 @@ class KnightFigure extends _Figure__WEBPACK_IMPORTED_MODULE_0__.Figure {
     constructor(color) {
         super({
             name: 'Knight',
+            nameLetter: 'N',
             color,
             weight: 3,
             mustChangeDirection: true,
@@ -779,6 +814,7 @@ class QueenFigure extends _Figure__WEBPACK_IMPORTED_MODULE_0__.Figure {
     constructor(color) {
         super({
             name: 'Queen',
+            nameLetter: 'Q',
             color,
             weight: 9,
             movement: new _Figure__WEBPACK_IMPORTED_MODULE_0__.FigureMovement({
@@ -817,6 +853,7 @@ class RookFigure extends _Figure__WEBPACK_IMPORTED_MODULE_0__.Figure {
     constructor(color) {
         super({
             name: 'Rook',
+            nameLetter: 'R',
             color,
             weight: 5,
             movement: new _Figure__WEBPACK_IMPORTED_MODULE_0__.FigureMovement({
@@ -1159,14 +1196,201 @@ class ChessFieldComponent {
         var _a;
         return ((_a = this.clientPlayer) === null || _a === void 0 ? void 0 : _a.color) || 'white';
     }
+    get gameNotation() {
+        return this.room.gameNotation || [];
+    }
+    get currentTurn() {
+        return this.gameNotation.length % 2 === 0 ? 'white' : 'black';
+    }
+    convertNotationStringToArray(inputNotation) {
+        const enPassantNotation = 'e.p.';
+        const notation = inputNotation
+            .replace(/\s\s/g, ' ')
+            .replace(/[!?]/g, '')
+            .replace(/0-0/g, 'O-O')
+            .replace(/0-0-0/g, 'O-O-O');
+        console.log(notation.slice(-20));
+        const parts = notation.split(/\s\d{1,2}\.\s/);
+        const result = [];
+        parts[0] = parts[0].slice(3);
+        parts.forEach(part => {
+            const moves = part.split(/\s/);
+            moves.forEach(move => {
+                if (move === enPassantNotation) {
+                    result[result.length - 1] = result[result.length - 1] + ' ' + enPassantNotation;
+                    return;
+                }
+                result.push(move);
+            });
+        });
+        return result;
+    }
     useNotation() {
         // transform notation into squares.
+        this.gameNotation.forEach((move, index) => {
+            const info = this.transformMoveNotation(move, index % 2 === 0 ? 'white' : 'black');
+            this.automaticMove(info);
+        });
+    }
+    transformMoveNotation(originalMove, color) {
+        var _a;
+        console.log(originalMove);
+        if (originalMove.length === 0) {
+            throw new Error('Could not parse game notation - one of the moves is empty!');
+        }
+        // e1     - move pawn to e1
+        // Be1    - move Bishop to e1
+        // Rdf3   - move Rook at d file to f3
+        // R1a3   - move Rook at 1'st row to a3
+        // Qh4e1  - move Queen at h4 to e1
+        // exd5   - take with pawn to d5
+        // Bxe5   - take with Bishop to e5
+        // Rdxf3  - take with Rook at d file to f3
+        // R1xa3  - take with Rook on 1-st row to a3
+        // Qh4xe1 - take with Queen on h4 to e1
+        // O-O    - castle king side
+        // O-O-O  - castle queen side
+        // e8=Q   - pawn move to e8 and promotes to Queen
+        // e7+    - move pawn to e7 which checks the King
+        // exd6 e.p. - pawn's en passant.
+        // Common parts:
+        // 1) Last two symbols are target square always, except for castle move and promotion;
+        // 2) First symbol is always the name of a figure, except for castle move, promotion and pawn move;
+        // 3) If move is a capture, it has "x" simbol in it, after which come target square.
+        if (originalMove === 'O-O' || originalMove === 'O-O-O') {
+            const startingSquare = this.chessField
+                .findSquare(square => { var _a; return ((_a = square.figure) === null || _a === void 0 ? void 0 : _a.name) === 'King' && square.figure.color === color; });
+            if (!startingSquare)
+                throw new Error('Could not make castle move - King was not found!');
+            if (!((_a = startingSquare.figure) === null || _a === void 0 ? void 0 : _a.didNotMove))
+                throw new Error('Could not make castle move - King already did move!');
+            const yCoord = color === 'white' ? 1 : this.chessField.height;
+            const xCoord = originalMove === 'O-O' ? 'g' : 'c';
+            this.handleKingSelection(startingSquare, startingSquare.figure);
+            const isValidMove = startingSquare.figure.moveIsPossible(xCoord, yCoord);
+            if (!isValidMove) {
+                console.error(JSON.stringify(startingSquare.figure.possibleMoves));
+                throw new Error('Could not make a castle move - this move is not valid!');
+            }
+            const targetSquare = this.chessField.findSquareByCoordinates(xCoord, yCoord);
+            if (!targetSquare)
+                throw new Error('Could not make a castle move - target square could not be found!');
+            return {
+                startingSquare,
+                targetSquare: targetSquare,
+                promotionInfo: '',
+            };
+        }
+        const captureSymbol = 'x';
+        const promotionSymbol = '=';
+        const checkSymbol = '+';
+        const checkMateSymbol = '#';
+        const enPassantNotation = ' e.p.';
+        const isCapture = originalMove.match(captureSymbol);
+        const isPromotion = originalMove.match(promotionSymbol);
+        const isCheck = originalMove[originalMove.length - 1] === checkSymbol;
+        const isCheckMate = originalMove[originalMove.length - 1] === checkMateSymbol;
+        const isEnPassant = originalMove.match(enPassantNotation);
+        let promotionInfo = '';
+        let move = originalMove;
+        if (isCapture)
+            move = move.split(captureSymbol).join('');
+        if (isCheck || isCheckMate)
+            move = move.slice(0, -1);
+        if (isEnPassant)
+            move = move.slice(0, -5);
+        if (isPromotion) {
+            const parts = move.split(promotionSymbol);
+            promotionInfo = parts[parts.length - 1];
+            move = move.replace(`=${promotionInfo}`, '');
+        }
+        const figureName = move[0].toUpperCase() === move[0] ? move[0] : '';
+        const targetSquareInfo = move.slice(-2);
+        const startingSquareInfo = move.slice(figureName ? 1 : 0, -2);
+        let startX = '';
+        let startY = 0;
+        const targetX = targetSquareInfo[0];
+        const targetY = Number(targetSquareInfo[1]);
+        if (startingSquareInfo.length === 1) {
+            const isNumber = !isNaN(Number(startingSquareInfo));
+            startX = isNumber ? '' : startingSquareInfo;
+            startY = isNumber ? Number(startingSquareInfo) : 0;
+        }
+        else if (startingSquareInfo.length === 2) {
+            startX = startingSquareInfo[0];
+            startY = Number(startingSquareInfo[1]);
+        }
+        let startingSquare;
+        const targetSquare = this.chessField
+            .findSquareByCoordinates(targetX, targetY);
+        if (startX && !isNaN(startY) && startY) {
+            startingSquare = this.chessField
+                .findSquareByCoordinates(startX, startY);
+        }
+        else {
+            const noNeedToMatch = !startX && (!startY || isNaN(startY));
+            startingSquare = this.chessField.findSquare(square => {
+                var _a;
+                const xMatches = startX && square.coordinates.xLetter === startX;
+                const yMatches = !isNaN(startY) && startY && square.coordinates.y === startY;
+                return (xMatches || yMatches || noNeedToMatch)
+                    && ((_a = square.figure) === null || _a === void 0 ? void 0 : _a.nameLetter) === figureName
+                    && square.figure.color === color
+                    && square.figure.moveIsPossible(targetX, targetY);
+            });
+            if (originalMove === 'axb5') {
+                console.log(startingSquare, startX, startingSquareInfo, move);
+            }
+        }
+        if (!startingSquare || !targetSquare) {
+            console.error('start: ', startingSquare, 'target: ', targetSquare);
+            console.error('startX:', startX, '\nstartY:', startY, '\ntargetX:', targetX, '\ntargetY:', targetY, '\nfigureName:', figureName, '\ncolor:', color);
+            throw new Error(`Could not make a move: either target or starting square could not be determined!`);
+        }
+        return {
+            startingSquare,
+            targetSquare,
+            promotionInfo: isPromotion ? promotionInfo : '',
+        };
+    }
+    automaticMove(info) {
+        const { startingSquare, targetSquare, promotionInfo } = info;
+        const capturedFigure = targetSquare.figure;
+        targetSquare.figure = startingSquare.figure;
+        startingSquare.figure = null;
+        if (targetSquare.figure instanceof src_app_classes_chess_figures_Figure__WEBPACK_IMPORTED_MODULE_0__.Figure) {
+            targetSquare.figure.emit('onMove', {
+                startCoordinates: startingSquare.coordinates,
+                endCoordinates: targetSquare.coordinates,
+                startSquare: startingSquare,
+                endSquare: targetSquare,
+                automatic: true,
+                promotionInfo: promotionInfo,
+            });
+            this.chessField.emit('onMove', {
+                startCoordinates: startingSquare.coordinates,
+                endCoordinates: targetSquare.coordinates,
+                startSquare: startingSquare,
+                endSquare: targetSquare,
+                figure: targetSquare.figure,
+                automatic: true,
+                promotionInfo: promotionInfo,
+            });
+            targetSquare.figure.didNotMove = false;
+        }
+        if (capturedFigure) {
+            this.figureCaptured.emit(capturedFigure);
+        }
+        this.markPossibleMovesForAllFigures();
     }
     generateField() {
         const figures = this.chessField.generate(this.playerColor);
         this.addEventsToFigures(figures);
         this.markPossibleMovesForAllFigures();
-        this.chessField.on('onMove', () => this.markPossibleMovesForAllFigures());
+        this.chessField.on('onMove', info => {
+            if (!info.automatic)
+                this.markPossibleMovesForAllFigures();
+        });
     }
     addEventsToFigures(eventFigures) {
         eventFigures.forEach(figure => {
@@ -1174,7 +1398,7 @@ class ChessFieldComponent {
                 figure.on('onMove', (info) => {
                     if (typeof info !== 'object' || !info)
                         return;
-                    const { startCoordinates, endCoordinates, endSquare } = info;
+                    const { startCoordinates, endCoordinates, endSquare, automatic, promotionInfo } = info;
                     if (startCoordinates instanceof _classes_Square__WEBPACK_IMPORTED_MODULE_2__.SquareCoordinates
                         && endCoordinates instanceof _classes_Square__WEBPACK_IMPORTED_MODULE_2__.SquareCoordinates
                         && endSquare instanceof _classes_Square__WEBPACK_IMPORTED_MODULE_2__.Square) {
@@ -1183,6 +1407,8 @@ class ChessFieldComponent {
                             endCoordinates,
                             endSquare,
                             figure,
+                            automatic,
+                            promotionInfo,
                         });
                     }
                 });
@@ -1676,7 +1902,7 @@ class ChessFieldComponent {
         }
     }
     handlePawnMove(info) {
-        const { figure } = info;
+        const { figure, automatic, promotionInfo } = info;
         if (figure.didNotMove)
             return this.handleFirstPawnMove(info);
         const { x: startX } = info.startCoordinates;
@@ -1686,6 +1912,16 @@ class ChessFieldComponent {
         }
         if ((figure.color === 'black' && endY === 1)
             || (figure.color === 'white' && endY === this.chessField.height)) {
+            if (automatic && promotionInfo) {
+                const promotedFigure = (figure.color === 'white'
+                    ? this.chessField.promoteVariantsWhite
+                    : this.chessField.promoteVariantsBlack).find(variant => variant.nameLetter === promotionInfo);
+                if (!promotedFigure)
+                    return;
+                info.endSquare.figure = promotedFigure.clone(figure.color);
+                promotedFigure.didNotMove = false;
+                return;
+            }
             this.openPromotePopup(figure, info.endSquare);
         }
     }
@@ -1876,11 +2112,23 @@ class ChessFieldComponent {
         }
     }
     ngOnInit() {
-        if (Array.isArray(this.notation) && this.notation.length !== 0) {
-            this.useNotation();
-            return;
-        }
         this.generateField();
+        const normalGame = `1. e4 e5 2. Nf3 Nc6 3. Bb5 a6
+    4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7
+    11. c4 c6 12. cxb5 axb5 13. Nc3 Bb7 14. Bg5 b4 15. Nb1 h6 16. Bh4 c5 17. dxe5
+    Nxe4 18. Bxe7 Qxe7 19. exd6 Qf6 20. Nbd2 Nxd6 21. Nc4 Nxc4 22. Bxc4 Nb6
+    23. Ne5 Rae8 24. Bxf7+ Rxf7 25. Nxf7 Rxe1+ 26. Qxe1 Kxf7 27. Qe3 Qg5 28. Qxg5
+    hxg5 29. b3 Ke6 30. a3 Kd6 31. axb4 cxb4 32. Ra5 Nd5 33. f3 Bc8 34. Kf2 Bf5
+    35. Ra7 g6 36. Ra6+ Kc5 37. Ke1 Nf4 38. g3 Nxh3 39. Kd2 Kb5 40. Rd6 Kc5 41. Ra6
+    Nf2 42. g4 Bd3 43. Re6`;
+        const enPassantGame = `1. e4 e6
+    2. e5 d5
+    3. exd6 e.p.`;
+        const promotionGame = `1. d4 d5 2. c4 c6 3. Nc3 Nf6 4. Nf3 a6 5. e3 b5 6. c5 g6 7. Bd3 Bg4 8. h3 Bxf3 9. Qxf3 Bg7 10. g4 e5! 11. Qg3 Nfd7 12. Ne2 Qe7 13. 0-0 h5 14. f3 Nf8 15. a4 b4 16. Bd2 a5 17. e4 dxe4 18. Bxe4 Ne6 19. Rae1 h4 20. Qf2 0-0 21. f4 exd4 22. f5!? Nxc5 23. Bb1 d3 24. Nc1 Qd6 25. Ba2?? Bd4 26. Be3 Ne4 27. Qxh4 g5 28. Qh5 d2 29. f6 Qxf6 30. Bxd4 Qxd4+ 31. Kg2  dxe1=N+`;
+        this.room.gameNotation = this.convertNotationStringToArray(promotionGame);
+        if (Array.isArray(this.gameNotation) && this.gameNotation.length !== 0) {
+            this.useNotation();
+        }
     }
 }
 ChessFieldComponent.ɵfac = function ChessFieldComponent_Factory(t) { return new (t || ChessFieldComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_7__["ɵɵdirectiveInject"](src_app_injectables_websocket__WEBPACK_IMPORTED_MODULE_4__.WebsocketDecorator)); };

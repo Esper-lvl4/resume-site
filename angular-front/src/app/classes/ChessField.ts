@@ -21,9 +21,20 @@ export class ChessField extends Events {
   }
 
   get promoteVariants(): Figure[] {
+    return this.playerColor === 'white' ? this.promoteVariantsWhite : this.promoteVariantsBlack;
+  }
+
+  get promoteVariantsWhite(): Figure[] {
     return [
-      new QueenFigure(this.playerColor), new RookFigure(this.playerColor),
-      new BishopFigure(this.playerColor), new KnightFigure(this.playerColor),
+      new QueenFigure('white'), new RookFigure('white'),
+      new BishopFigure('white'), new KnightFigure('white'),
+    ]
+  }
+
+  get promoteVariantsBlack(): Figure[] {
+    return [
+      new QueenFigure('black'), new RookFigure('black'),
+      new BishopFigure('black'), new KnightFigure('black'),
     ]
   }
 
