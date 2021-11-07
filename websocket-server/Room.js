@@ -94,7 +94,7 @@ class Room {
   }
 
   refresh() {
-    this.notifyAllPlayers('synchronizeGame', this);
+    this.notifyAllPlayers('synchronizeGame', this.prepareToSend());
   }
 
   prepareToSend() {

@@ -72,7 +72,7 @@ export class ChessField extends Events {
             eventFigures.push(figure);
           }
           if (x === 2 || x === 7) figure = new KnightFigure(color);
-          if (x === 3 || x === 6) figure = new BishopFigure(color);
+          if (x === 3 || x === 6) figure = new QueenFigure(color);
           if (x === 4) figure = new QueenFigure(color);
           if (x === 5) {
             figure = new KingFigure(color);

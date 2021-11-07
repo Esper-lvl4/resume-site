@@ -93,7 +93,7 @@ function handleRooms(socket) {
       socket.emit('showError', 'Failed to start game: Either room was not found or it\'s not full');
       return;
     }
-    socket.emit('updateCurrentGame', room.prepareToSend());
+    room.notifyAllPlayers('updateCurrentGame', room.prepareToSend());
   });
 }
 

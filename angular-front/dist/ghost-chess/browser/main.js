@@ -286,7 +286,7 @@ class ChessField extends _Events__WEBPACK_IMPORTED_MODULE_1__.Events {
                     if (x === 2 || x === 7)
                         figure = new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.KnightFigure(color);
                     if (x === 3 || x === 6)
-                        figure = new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.BishopFigure(color);
+                        figure = new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.QueenFigure(color);
                     if (x === 4)
                         figure = new src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_0__.QueenFigure(color);
                     if (x === 5) {
@@ -383,6 +383,35 @@ class Events {
         });
     }
 }
+
+
+/***/ }),
+
+/***/ 228:
+/*!**************************************!*\
+  !*** ./src/app/classes/MoveEvent.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "MoveEvent": () => (/* binding */ MoveEvent),
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+class MoveEvent {
+    constructor(info) {
+        this.startCoordinates = info.startCoordinates;
+        this.endCoordinates = info.endCoordinates;
+        this.startSquare = info.startSquare;
+        this.endSquare = info.endSquare;
+        this.figure = info.figure;
+        this.isCapture = info.isCapture;
+        this.automatic = info.automatic;
+        this.promotionInfo = info.promotionInfo;
+    }
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (MoveEvent);
 
 
 /***/ }),
@@ -650,6 +679,7 @@ class Figure extends src_app_classes_Events__WEBPACK_IMPORTED_MODULE_0__.Events 
         var _a;
         return new Figure({
             name: this.name,
+            nameLetter: this.nameLetter,
             color: color || this.color,
             image: this.image,
             weight: this.weight,
@@ -1128,16 +1158,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "ChessFieldComponent": () => (/* binding */ ChessFieldComponent)
 /* harmony export */ });
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! @angular/core */ 2316);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/core */ 2316);
 /* harmony import */ var src_app_classes_chess_figures_Figure__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! src/app/classes/chess-figures/Figure */ 2909);
 /* harmony import */ var src_app_classes_chess_figures__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! src/app/classes/chess-figures */ 3647);
 /* harmony import */ var _classes_Square__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../classes/Square */ 1239);
 /* harmony import */ var _classes_ChessField__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../classes/ChessField */ 1528);
-/* harmony import */ var src_app_injectables_websocket__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! src/app/injectables/websocket */ 5920);
-/* harmony import */ var src_app_injectables_png_parser__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! src/app/injectables/png-parser */ 578);
-/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! @angular/common */ 4364);
-/* harmony import */ var _popups_promote_popup_promote_popup_component__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../popups/promote-popup/promote-popup.component */ 2963);
-/* harmony import */ var _chess_field_square_chess_field_square_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../chess-field-square/chess-field-square.component */ 9775);
+/* harmony import */ var src_app_classes_MoveEvent__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! src/app/classes/MoveEvent */ 228);
+/* harmony import */ var src_app_injectables_websocket__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! src/app/injectables/websocket */ 5920);
+/* harmony import */ var src_app_injectables_png_parser__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! src/app/injectables/png-parser */ 578);
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! @angular/common */ 4364);
+/* harmony import */ var _popups_promote_popup_promote_popup_component__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../popups/promote-popup/promote-popup.component */ 2963);
+/* harmony import */ var _chess_field_square_chess_field_square_component__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../chess-field-square/chess-field-square.component */ 9775);
+
 
 
 
@@ -1150,14 +1182,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function ChessFieldComponent_app_chess_field_square_1_Template(rf, ctx) { if (rf & 1) {
-    const _r3 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵgetCurrentView"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "app-chess-field-square", 3);
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("grabFigure", function ChessFieldComponent_app_chess_field_square_1_Template_app_chess_field_square_grabFigure_0_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵrestoreView"](_r3); const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"](); return ctx_r2.setCurrentSquareInfo($event); })("dropFigure", function ChessFieldComponent_app_chess_field_square_1_Template_app_chess_field_square_dropFigure_0_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵrestoreView"](_r3); const ctx_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"](); return ctx_r4.moveCurrentFigure($event); })("clearPossibleMoves", function ChessFieldComponent_app_chess_field_square_1_Template_app_chess_field_square_clearPossibleMoves_0_listener() { _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵrestoreView"](_r3); const ctx_r5 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"](); return ctx_r5.clearPossibleMoves(); })("targetSquareChange", function ChessFieldComponent_app_chess_field_square_1_Template_app_chess_field_square_targetSquareChange_0_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵrestoreView"](_r3); const ctx_r6 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"](); return ctx_r6.changeTargetSquare($event); })("captureFigure", function ChessFieldComponent_app_chess_field_square_1_Template_app_chess_field_square_captureFigure_0_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵrestoreView"](_r3); const ctx_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"](); return ctx_r7.captureFigure($event); });
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+    const _r3 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵgetCurrentView"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "app-chess-field-square", 3);
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("grabFigure", function ChessFieldComponent_app_chess_field_square_1_Template_app_chess_field_square_grabFigure_0_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r3); const ctx_r2 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"](); return ctx_r2.setCurrentSquareInfo($event); })("dropFigure", function ChessFieldComponent_app_chess_field_square_1_Template_app_chess_field_square_dropFigure_0_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r3); const ctx_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"](); return ctx_r4.moveCurrentFigure($event); })("clearPossibleMoves", function ChessFieldComponent_app_chess_field_square_1_Template_app_chess_field_square_clearPossibleMoves_0_listener() { _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r3); const ctx_r5 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"](); return ctx_r5.clearPossibleMoves(); })("targetSquareChange", function ChessFieldComponent_app_chess_field_square_1_Template_app_chess_field_square_targetSquareChange_0_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r3); const ctx_r6 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"](); return ctx_r6.changeTargetSquare($event); })("captureFigure", function ChessFieldComponent_app_chess_field_square_1_Template_app_chess_field_square_captureFigure_0_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵrestoreView"](_r3); const ctx_r7 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"](); return ctx_r7.captureFigure($event); });
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
 } if (rf & 2) {
     const square_r1 = ctx.$implicit;
-    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵnextContext"]();
-    _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("square", square_r1)("playerColor", ctx_r0.playerColor)("width", ctx_r0.chessField.width)("height", ctx_r0.chessField.height);
+    const ctx_r0 = _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵnextContext"]();
+    _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("square", square_r1)("playerColor", ctx_r0.playerColor)("width", ctx_r0.chessField.width)("height", ctx_r0.chessField.height);
 } }
 class ChessFieldComponent {
     constructor(socket, pngParser) {
@@ -1165,7 +1197,8 @@ class ChessFieldComponent {
         this.pngParser = pngParser;
         this.notation = [];
         this.isStudy = false;
-        this.figureCaptured = new _angular_core__WEBPACK_IMPORTED_MODULE_8__.EventEmitter();
+        this.figureCaptured = new _angular_core__WEBPACK_IMPORTED_MODULE_9__.EventEmitter();
+        this.playerMadeMove = new _angular_core__WEBPACK_IMPORTED_MODULE_9__.EventEmitter();
         this.chessField = new _classes_ChessField__WEBPACK_IMPORTED_MODULE_3__.ChessField();
         this.currentSquareTarget = null;
         this.dragTimer = false;
@@ -1206,6 +1239,26 @@ class ChessFieldComponent {
     get currentTurn() {
         return this.gameNotation.length % 2 === 0 ? 'white' : 'black';
     }
+    roomDidRefresh(oldRoom, newRoom) {
+        if (!oldRoom || !newRoom)
+            return;
+        if (oldRoom.gameNotation.length !== newRoom.gameNotation.length) {
+            for (let i = oldRoom.gameNotation.length; i < newRoom.gameNotation.length; i++) {
+                console.log('tick');
+                const move = newRoom.gameNotation[i];
+                const info = this.pngParser.transformMoveNotation({
+                    originalMove: move,
+                    color: i % 2 === 0 ? 'white' : 'black',
+                    handleKingSelection: (square, figure) => {
+                        this.handleKingSelection(square, figure);
+                    },
+                    chessField: this.chessField,
+                });
+                this.automaticMove(info);
+            }
+            this.markPossibleMovesForAllFigures();
+        }
+    }
     useNotation() {
         if (typeof this.gameNotation === 'string') {
             this.room.gameNotation = this.pngParser.convertNotationStringToArray(this.gameNotation);
@@ -1229,15 +1282,7 @@ class ChessFieldComponent {
         targetSquare.figure = startingSquare.figure;
         startingSquare.figure = null;
         if (targetSquare.figure instanceof src_app_classes_chess_figures_Figure__WEBPACK_IMPORTED_MODULE_0__.Figure) {
-            targetSquare.figure.emit('onMove', {
-                startCoordinates: startingSquare.coordinates,
-                endCoordinates: targetSquare.coordinates,
-                startSquare: startingSquare,
-                endSquare: targetSquare,
-                automatic: true,
-                promotionInfo: promotionInfo,
-            });
-            this.chessField.emit('onMove', {
+            const event = new src_app_classes_MoveEvent__WEBPACK_IMPORTED_MODULE_4__.default({
                 startCoordinates: startingSquare.coordinates,
                 endCoordinates: targetSquare.coordinates,
                 startSquare: startingSquare,
@@ -1246,6 +1291,8 @@ class ChessFieldComponent {
                 automatic: true,
                 promotionInfo: promotionInfo,
             });
+            targetSquare.figure.emit('onMove', event);
+            this.chessField.emit('onMove', event);
             targetSquare.figure.didNotMove = false;
         }
         if (capturedFigure) {
@@ -1258,29 +1305,38 @@ class ChessFieldComponent {
         this.addEventsToFigures(figures);
         this.markPossibleMovesForAllFigures();
         this.chessField.on('onMove', info => {
-            if (!info.automatic)
-                this.markPossibleMovesForAllFigures();
+            if (!(info instanceof src_app_classes_MoveEvent__WEBPACK_IMPORTED_MODULE_4__.default))
+                return;
+            const { automatic } = info;
+            if (automatic)
+                return;
+            this.convertMove(info);
+            this.markPossibleMovesForAllFigures();
         });
+    }
+    convertMove(info, promoteInfo) {
+        var _a;
+        const { startCoordinates, endCoordinates, startSquare, endSquare, isCapture } = info;
+        if (!promoteInfo && ((_a = endSquare.figure) === null || _a === void 0 ? void 0 : _a.name) === 'Pawn'
+            && (endSquare.figure.color === 'white' ? this.chessField.height : 1) === endCoordinates.y)
+            return;
+        const move = this.pngParser.convertMoveToPGN({
+            startCoordinates, endCoordinates, startSquare, endSquare,
+            chessField: this.chessField,
+            isCapture: typeof isCapture === 'boolean' ? isCapture : false,
+            promote: promoteInfo,
+        });
+        console.log(move);
+        this.gameNotation.push(move);
+        this.playerMadeMove.emit(move);
     }
     addEventsToFigures(eventFigures) {
         eventFigures.forEach(figure => {
             if (figure.name === 'Pawn') {
                 figure.on('onMove', (info) => {
-                    if (typeof info !== 'object' || !info)
+                    if (!(info instanceof src_app_classes_MoveEvent__WEBPACK_IMPORTED_MODULE_4__.default))
                         return;
-                    const { startCoordinates, endCoordinates, endSquare, automatic, promotionInfo } = info;
-                    if (startCoordinates instanceof _classes_Square__WEBPACK_IMPORTED_MODULE_2__.SquareCoordinates
-                        && endCoordinates instanceof _classes_Square__WEBPACK_IMPORTED_MODULE_2__.SquareCoordinates
-                        && endSquare instanceof _classes_Square__WEBPACK_IMPORTED_MODULE_2__.Square) {
-                        this.handlePawnMove({
-                            startCoordinates,
-                            endCoordinates,
-                            endSquare,
-                            figure,
-                            automatic,
-                            promotionInfo,
-                        });
-                    }
+                    this.handlePawnMove(info);
                 });
             }
             if (figure.name === 'King') {
@@ -1300,32 +1356,23 @@ class ChessFieldComponent {
                 figure.on('onSelect', selectHandler);
                 figure.on('onUnselect', unselectHandler);
                 figure.once('onMove', (info) => {
+                    if (!(info instanceof src_app_classes_MoveEvent__WEBPACK_IMPORTED_MODULE_4__.default))
+                        return;
                     if (!Array.isArray(figure.movement)) {
                         figure.movement.left = 1;
                         figure.movement.right = 1;
                         figure.off('onSelect', selectHandler);
                         figure.off('onUnselect', unselectHandler);
                     }
-                    if (typeof info !== 'object' || !info)
-                        return;
-                    const { startCoordinates, endCoordinates, startSquare } = info;
-                    if (startCoordinates instanceof _classes_Square__WEBPACK_IMPORTED_MODULE_2__.SquareCoordinates
-                        && endCoordinates instanceof _classes_Square__WEBPACK_IMPORTED_MODULE_2__.SquareCoordinates
-                        && startSquare instanceof _classes_Square__WEBPACK_IMPORTED_MODULE_2__.Square) {
-                        this.handleFirstKingMove({
-                            startCoordinates,
-                            endCoordinates,
-                            figure,
-                            startSquare,
-                        });
-                    }
+                    this.handleFirstKingMove(info);
                 });
             }
         });
     }
     setCurrentSquareInfo(square) {
         var _a;
-        if (!this.isStudy && ((_a = square === null || square === void 0 ? void 0 : square.figure) === null || _a === void 0 ? void 0 : _a.color) !== this.playerColor)
+        if ((!this.isStudy && ((_a = square === null || square === void 0 ? void 0 : square.figure) === null || _a === void 0 ? void 0 : _a.color) !== this.playerColor)
+            || this.currentTurn !== this.playerColor)
             return;
         if (!(square === null || square === void 0 ? void 0 : square.figure)) {
             this.clearPossibleMoves();
@@ -1378,19 +1425,15 @@ class ChessFieldComponent {
         console.log('moveCurrentFigure');
         targetSquare.figure = figure;
         if (figure instanceof src_app_classes_chess_figures_Figure__WEBPACK_IMPORTED_MODULE_0__.Figure) {
-            figure.emit('onMove', {
+            const event = new src_app_classes_MoveEvent__WEBPACK_IMPORTED_MODULE_4__.default({
                 startCoordinates: this.currentSquareInfo.coordinates,
                 endCoordinates: targetSquare.coordinates,
                 startSquare: this.currentSquareInfo,
                 endSquare: targetSquare,
+                figure,
             });
-            this.chessField.emit('onMove', {
-                startCoordinates: this.currentSquareInfo.coordinates,
-                endCoordinates: targetSquare.coordinates,
-                startSquare: this.currentSquareInfo,
-                endSquare: targetSquare,
-                figure: figure,
-            });
+            figure.emit('onMove', event);
+            this.chessField.emit('onMove', event);
             figure.didNotMove = false;
         }
         this.currentSquareInfo = null;
@@ -1406,26 +1449,30 @@ class ChessFieldComponent {
         this.figureCaptured.emit(capturedFigure);
         console.log('captureFigure');
         targetSquare.figure = figure;
+        this.currentSquareInfo.figure = null;
         if (figure instanceof src_app_classes_chess_figures_Figure__WEBPACK_IMPORTED_MODULE_0__.Figure) {
-            const figureInfo = {
+            const event = new src_app_classes_MoveEvent__WEBPACK_IMPORTED_MODULE_4__.default({
                 startCoordinates: this.currentSquareInfo.coordinates,
                 endCoordinates: targetSquare.coordinates,
                 startSquare: this.currentSquareInfo,
                 endSquare: targetSquare,
-            };
-            figure.emit('onMove', figureInfo);
-            figure.emit('onCapture', Object.assign(Object.assign({}, figureInfo), { capturedFigure }));
-            this.chessField.emit('onMove', Object.assign(Object.assign({}, figureInfo), { figure: figure }));
-            this.chessField.emit('onCapture', Object.assign(Object.assign({}, figureInfo), { figure: figure, capturedFigure }));
+                figure,
+                capturedFigure,
+                isCapture: true,
+            });
+            figure.emit('onMove', event);
+            figure.emit('onCapture', event);
+            this.chessField.emit('onMove', event);
+            this.chessField.emit('onCapture', event);
             figure.didNotMove = false;
         }
-        this.currentSquareInfo.figure = null;
         this.currentSquareTarget = null;
     }
     clearPossibleMoves() {
         this.squares.forEach(square => square.isPossibleMove = false);
     }
     markPossibleMovesForAllFigures() {
+        console.log('mark');
         for (let square of this.chessField.squares) {
             if (square.figure) {
                 this.markPossibleMoves({ square, figure: square.figure });
@@ -1798,7 +1845,7 @@ class ChessFieldComponent {
                 promotedFigure.didNotMove = false;
                 return;
             }
-            this.openPromotePopup(figure, info.endSquare);
+            this.openPromotePopup(figure, info);
         }
     }
     resolveEnpassant(info) {
@@ -1962,12 +2009,13 @@ class ChessFieldComponent {
         }
         this.markPossibleMoves({ square, figure });
     }
-    openPromotePopup(figure, square) {
+    openPromotePopup(figure, info) {
         if (!figure.canPromote)
             return;
         this.promotionInfo = {
             figure,
-            square,
+            square: info.endSquare,
+            info,
         };
         this.promotePopup = true;
     }
@@ -1978,6 +2026,8 @@ class ChessFieldComponent {
         console.log('promoteFigure');
         this.promotionInfo.square.figure = figure;
         figure.didNotMove = false;
+        this.convertMove(this.promotionInfo.info, figure.nameLetter);
+        this.markPossibleMoves({ square: this.promotionInfo.square, figure: figure });
     }
     tryMovingAPiece(square, targetSquare) {
         if (!targetSquare || !(square === null || square === void 0 ? void 0 : square.figure))
@@ -1987,7 +2037,6 @@ class ChessFieldComponent {
         const xDifference = startX - endX;
         const yDifference = startY - endY;
         if (xDifference !== 0 && yDifference !== 0) {
-            // if (square.figure.)
         }
     }
     ngOnInit() {
@@ -2009,21 +2058,26 @@ class ChessFieldComponent {
             this.useNotation();
         }
     }
+    ngOnChanges(changes) {
+        if (changes.room) {
+            this.roomDidRefresh(changes.room.previousValue, changes.room.currentValue);
+        }
+    }
 }
-ChessFieldComponent.ɵfac = function ChessFieldComponent_Factory(t) { return new (t || ChessFieldComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](src_app_injectables_websocket__WEBPACK_IMPORTED_MODULE_4__.WebsocketDecorator), _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdirectiveInject"](src_app_injectables_png_parser__WEBPACK_IMPORTED_MODULE_5__.PNGParser)); };
-ChessFieldComponent.ɵcmp = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵdefineComponent"]({ type: ChessFieldComponent, selectors: [["app-chess-field"]], inputs: { notation: "notation", room: "room", isStudy: "isStudy" }, outputs: { figureCaptured: "figureCaptured" }, decls: 3, vars: 6, consts: [[1, "chess-field"], [3, "square", "playerColor", "width", "height", "grabFigure", "dropFigure", "clearPossibleMoves", "targetSquareChange", "captureFigure", 4, "ngFor", "ngForOf"], [3, "visible", "promotionInfo", "promoteVariants", "playerColor", "width", "visibleChange", "promoteVariantChosen"], [3, "square", "playerColor", "width", "height", "grabFigure", "dropFigure", "clearPossibleMoves", "targetSquareChange", "captureFigure"]], template: function ChessFieldComponent_Template(rf, ctx) { if (rf & 1) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](0, "div", 0);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵtemplate"](1, ChessFieldComponent_app_chess_field_square_1_Template, 1, 4, "app-chess-field-square", 1);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementStart"](2, "app-promote-popup", 2);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵlistener"]("visibleChange", function ChessFieldComponent_Template_app_promote_popup_visibleChange_2_listener($event) { return ctx.promotePopup = $event; })("promoteVariantChosen", function ChessFieldComponent_Template_app_promote_popup_promoteVariantChosen_2_listener($event) { return ctx.promoteFigure($event); });
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵelementEnd"]();
+ChessFieldComponent.ɵfac = function ChessFieldComponent_Factory(t) { return new (t || ChessFieldComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵdirectiveInject"](src_app_injectables_websocket__WEBPACK_IMPORTED_MODULE_5__.WebsocketDecorator), _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵdirectiveInject"](src_app_injectables_png_parser__WEBPACK_IMPORTED_MODULE_6__.PNGParser)); };
+ChessFieldComponent.ɵcmp = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵdefineComponent"]({ type: ChessFieldComponent, selectors: [["app-chess-field"]], inputs: { notation: "notation", room: "room", isStudy: "isStudy" }, outputs: { figureCaptured: "figureCaptured", playerMadeMove: "playerMadeMove" }, features: [_angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵNgOnChangesFeature"]], decls: 3, vars: 6, consts: [[1, "chess-field"], [3, "square", "playerColor", "width", "height", "grabFigure", "dropFigure", "clearPossibleMoves", "targetSquareChange", "captureFigure", 4, "ngFor", "ngForOf"], [3, "visible", "promotionInfo", "promoteVariants", "playerColor", "width", "visibleChange", "promoteVariantChosen"], [3, "square", "playerColor", "width", "height", "grabFigure", "dropFigure", "clearPossibleMoves", "targetSquareChange", "captureFigure"]], template: function ChessFieldComponent_Template(rf, ctx) { if (rf & 1) {
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](0, "div", 0);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵtemplate"](1, ChessFieldComponent_app_chess_field_square_1_Template, 1, 4, "app-chess-field-square", 1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementStart"](2, "app-promote-popup", 2);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵlistener"]("visibleChange", function ChessFieldComponent_Template_app_promote_popup_visibleChange_2_listener($event) { return ctx.promotePopup = $event; })("promoteVariantChosen", function ChessFieldComponent_Template_app_promote_popup_promoteVariantChosen_2_listener($event) { return ctx.promoteFigure($event); });
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵelementEnd"]();
     } if (rf & 2) {
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](1);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("ngForOf", ctx.squares);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵadvance"](1);
-        _angular_core__WEBPACK_IMPORTED_MODULE_8__["ɵɵproperty"]("visible", ctx.promotePopup)("promotionInfo", ctx.promotionInfo)("promoteVariants", ctx.chessField.promoteVariants)("playerColor", ctx.playerColor)("width", ctx.chessField.width);
-    } }, directives: [_angular_common__WEBPACK_IMPORTED_MODULE_9__.NgForOf, _popups_promote_popup_promote_popup_component__WEBPACK_IMPORTED_MODULE_6__.PromotePopupComponent, _chess_field_square_chess_field_square_component__WEBPACK_IMPORTED_MODULE_7__.ChessFieldSquareComponent], styles: [".chess-field[_ngcontent-%COMP%] {\n  position: relative;\n  display: grid;\n  grid-template: repeat(8, 80px)/repeat(8, 80px);\n  margin: 10px;\n  border: 3px solid #ffffff;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImNoZXNzLWZpZWxkLmNvbXBvbmVudC5zYXNzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0Usa0JBQUE7RUFDQSxhQUFBO0VBQ0EsOENBQUE7RUFDQSxZQUFBO0VBQ0EseUJBQUE7QUFDRiIsImZpbGUiOiJjaGVzcy1maWVsZC5jb21wb25lbnQuc2FzcyIsInNvdXJjZXNDb250ZW50IjpbIi5jaGVzcy1maWVsZFxyXG4gIHBvc2l0aW9uOiByZWxhdGl2ZVxyXG4gIGRpc3BsYXk6IGdyaWRcclxuICBncmlkLXRlbXBsYXRlOiByZXBlYXQoOCwgODBweCkgLyByZXBlYXQoOCwgODBweClcclxuICBtYXJnaW46IDEwcHhcclxuICBib3JkZXI6IDNweCBzb2xpZCAjZmZmZmZmIl19 */"] });
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("ngForOf", ctx.squares);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵadvance"](1);
+        _angular_core__WEBPACK_IMPORTED_MODULE_9__["ɵɵproperty"]("visible", ctx.promotePopup)("promotionInfo", ctx.promotionInfo)("promoteVariants", ctx.chessField.promoteVariants)("playerColor", ctx.playerColor)("width", ctx.chessField.width);
+    } }, directives: [_angular_common__WEBPACK_IMPORTED_MODULE_10__.NgForOf, _popups_promote_popup_promote_popup_component__WEBPACK_IMPORTED_MODULE_7__.PromotePopupComponent, _chess_field_square_chess_field_square_component__WEBPACK_IMPORTED_MODULE_8__.ChessFieldSquareComponent], styles: [".chess-field[_ngcontent-%COMP%] {\n  position: relative;\n  display: grid;\n  grid-template: repeat(8, 80px)/repeat(8, 80px);\n  margin: 10px;\n  border: 3px solid #ffffff;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImNoZXNzLWZpZWxkLmNvbXBvbmVudC5zYXNzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0Usa0JBQUE7RUFDQSxhQUFBO0VBQ0EsOENBQUE7RUFDQSxZQUFBO0VBQ0EseUJBQUE7QUFDRiIsImZpbGUiOiJjaGVzcy1maWVsZC5jb21wb25lbnQuc2FzcyIsInNvdXJjZXNDb250ZW50IjpbIi5jaGVzcy1maWVsZFxyXG4gIHBvc2l0aW9uOiByZWxhdGl2ZVxyXG4gIGRpc3BsYXk6IGdyaWRcclxuICBncmlkLXRlbXBsYXRlOiByZXBlYXQoOCwgODBweCkgLyByZXBlYXQoOCwgODBweClcclxuICBtYXJnaW46IDEwcHhcclxuICBib3JkZXI6IDNweCBzb2xpZCAjZmZmZmZmIl19 */"] });
 
 
 /***/ }),
@@ -2214,6 +2268,53 @@ class PNGParser {
             });
         });
         return result;
+    }
+    convertMoveToPGN(info) {
+        const { startSquare, endSquare, startCoordinates: { x: startX, xLetter: startXLetter, y: startY }, endCoordinates: { x: endX, xLetter: endXLetter, y: endY }, chessField, isCapture, promote, isCheck, } = info;
+        if (!endSquare.figure)
+            return '';
+        const figureName = endSquare.figure.nameLetter;
+        if (figureName === 'K' && Math.abs(startX - endX) === 2) {
+            return startX > endX ? 'O-O-O' : 'O-O';
+        }
+        let originalSquare = '';
+        const capture = isCapture ? 'x' : '';
+        const check = isCheck ? '+' : '';
+        const promoteTo = promote ? `=${promote}` : '';
+        if (isCapture && ((promote && figureName) || !figureName)) {
+            originalSquare = startXLetter;
+        }
+        else if (figureName) {
+            let recordX = false, recordY = false;
+            let figureCount = 0;
+            for (let square of chessField.squares) {
+                if (recordX && recordY)
+                    break;
+                if (!square.figure)
+                    continue;
+                if (square.figure.name !== endSquare.figure.name
+                    || square.figure.color !== endSquare.figure.color)
+                    continue;
+                const { x, y } = square.coordinates;
+                if (!square.figure.moveIsPossible(endX, endY) || (x === endX && y === endY))
+                    continue;
+                figureCount++;
+                if (x === startX)
+                    recordY = true;
+                if (y === startY)
+                    recordX = true;
+                if (figureCount >= 2) {
+                    recordY = true;
+                    recordX = true;
+                }
+                else {
+                    recordY = true;
+                }
+            }
+            originalSquare = `${recordX ? startXLetter : ''}${recordY ? startY : ''}`;
+        }
+        const targetSquare = `${endXLetter}${endY}`;
+        return `${promote ? '' : figureName}${originalSquare}${capture}${targetSquare}${promoteTo}${check}`;
     }
     transformMoveNotation(info) {
         var _a;
@@ -3056,7 +3157,7 @@ function StartedGameComponent_app_chess_figure_1_Template(rf, ctx) { if (rf & 1)
 function StartedGameComponent_app_chess_field_2_Template(rf, ctx) { if (rf & 1) {
     const _r5 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵgetCurrentView"]();
     _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "app-chess-field", 5);
-    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵlistener"]("figureCaptured", function StartedGameComponent_app_chess_field_2_Template_app_chess_field_figureCaptured_0_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵrestoreView"](_r5); const ctx_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"](); return ctx_r4.figureCaptured($event); });
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵlistener"]("figureCaptured", function StartedGameComponent_app_chess_field_2_Template_app_chess_field_figureCaptured_0_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵrestoreView"](_r5); const ctx_r4 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"](); return ctx_r4.figureCaptured($event); })("playerMadeMove", function StartedGameComponent_app_chess_field_2_Template_app_chess_field_playerMadeMove_0_listener($event) { _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵrestoreView"](_r5); const ctx_r6 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"](); return ctx_r6.onPlayerMove($event); });
     _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();
 } if (rf & 2) {
     const ctx_r1 = _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵnextContext"]();
@@ -3065,8 +3166,8 @@ function StartedGameComponent_app_chess_field_2_Template(rf, ctx) { if (rf & 1) 
 function StartedGameComponent_app_chess_figure_4_Template(rf, ctx) { if (rf & 1) {
     _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelement"](0, "app-chess-figure", 4);
 } if (rf & 2) {
-    const figure_r6 = ctx.$implicit;
-    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("figure", figure_r6);
+    const figure_r7 = ctx.$implicit;
+    _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵproperty"]("figure", figure_r7);
 } }
 class StartedGameComponent {
     constructor(router, route, socket) {
@@ -3082,6 +3183,9 @@ class StartedGameComponent {
     figureCaptured(figure) {
         this.yourCapturedFigures.push(figure);
     }
+    onPlayerMove(move) {
+        this.socket.emit('makeMove', { move });
+    }
     ngOnInit() {
         if (!this.isClientSide)
             return;
@@ -3093,6 +3197,11 @@ class StartedGameComponent {
             }
             this.room = room;
         });
+        this.socket.on('synchronizeGame', room => {
+            if (!(0,src_app_classes_RoomInfo__WEBPACK_IMPORTED_MODULE_0__.isRoomInfo)(room))
+                return;
+            this.room = room;
+        });
         this.route.params.subscribe(params => {
             const { id } = params;
             this.socket.gameId = isNaN(id) ? 0 : +id;
@@ -3101,17 +3210,16 @@ class StartedGameComponent {
                 return;
             }
             this.socket.emit('getRoom');
-            // Write all communications between started game and websocket server.
-            // Make chess field convert game notation into board state. It should not parse
-            // notation if it's invalid.
-            // Make turns and timer logic.
+            // Highlight King checks.
+            // Make it so, that you cannot make moves which would result in King's death.
+            // Make timer logic.
             // Buy a hosting and then configure nginx.
             // Make everything slightly preetier.
         });
     }
 }
 StartedGameComponent.ɵfac = function StartedGameComponent_Factory(t) { return new (t || StartedGameComponent)(_angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_5__.Router), _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdirectiveInject"](_angular_router__WEBPACK_IMPORTED_MODULE_5__.ActivatedRoute), _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdirectiveInject"](src_app_injectables_websocket__WEBPACK_IMPORTED_MODULE_1__.WebsocketDecorator)); };
-StartedGameComponent.ɵcmp = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdefineComponent"]({ type: StartedGameComponent, selectors: [["app-started-game"]], decls: 5, vars: 3, consts: [[1, "captured-figures", "opponents"], [3, "figure", 4, "ngFor", "ngForOf"], [3, "room", "figureCaptured", 4, "ngIf"], [1, "captured-figures"], [3, "figure"], [3, "room", "figureCaptured"]], template: function StartedGameComponent_Template(rf, ctx) { if (rf & 1) {
+StartedGameComponent.ɵcmp = /*@__PURE__*/ _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵdefineComponent"]({ type: StartedGameComponent, selectors: [["app-started-game"]], decls: 5, vars: 3, consts: [[1, "captured-figures", "opponents"], [3, "figure", 4, "ngFor", "ngForOf"], [3, "room", "figureCaptured", "playerMadeMove", 4, "ngIf"], [1, "captured-figures"], [3, "figure"], [3, "room", "figureCaptured", "playerMadeMove"]], template: function StartedGameComponent_Template(rf, ctx) { if (rf & 1) {
         _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementStart"](0, "div", 0);
         _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵtemplate"](1, StartedGameComponent_app_chess_figure_1_Template, 1, 1, "app-chess-figure", 1);
         _angular_core__WEBPACK_IMPORTED_MODULE_4__["ɵɵelementEnd"]();

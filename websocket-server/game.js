@@ -1,11 +1,12 @@
 const { roomList } = require("./rooms");
+const { userList } = require("./users");
 
 function handleGame(socket) {
   let savedGame = null;
   const getGame = (userId) => {
     if (savedGame && !savedGame.isFinished) return savedGame;
     const currentGame = roomList.getRoomByUserId(userId);
-    if (!currentGame || currentGame.gameHasStarted || currentGame.isFinished) {
+    if (!currentGame || !currentGame.gameHasStarted || currentGame.isFinished) {
       return null;
     }
     savedGame = currentGame;
@@ -17,7 +18,9 @@ function handleGame(socket) {
       socket.emit('failedToMakeMove', 'Data was not provided');
       return;
     }
-    const { user, move } = data;
+    const { id, move } = data;
+    const user = userList.findUser(id);
+    if (!user) return;
     const game = getGame(user.id);
     if (!game) return;
 

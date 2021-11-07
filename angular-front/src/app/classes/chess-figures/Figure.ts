@@ -146,6 +146,7 @@ export class Figure extends Events {
   clone(color: Figure['color']): Figure {
     return new Figure({
       name: this.name,
+      nameLetter: this.nameLetter,
       color: color || this.color,
       image: this.image,
       weight: this.weight,

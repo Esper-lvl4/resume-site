@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChange, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { CoordinatesMap, Figure, FigureMovement } from 'src/app/classes/chess-figures/Figure';
 import {
   PawnFigure,
@@ -10,24 +10,26 @@ import RoomInfo from 'src/app/classes/RoomInfo';
 import { WebsocketDecorator } from 'src/app/injectables/websocket';
 import UserInfo from 'src/app/classes/UserInfo';
 import { PNGParser } from 'src/app/injectables/png-parser';
+import MoveEvent from 'src/app/classes/MoveEvent';
 
 @Component({
   selector: 'app-chess-field',
   templateUrl: './chess-field.component.html',
   styleUrls: ['./chess-field.component.sass']
 })
-export class ChessFieldComponent implements OnInit {
+export class ChessFieldComponent implements OnInit, OnChanges {
 
   @Input() notation = [];
   @Input() room!: RoomInfo;
   @Input() isStudy: boolean = false;
 
   @Output() figureCaptured = new EventEmitter<Figure>();
+  @Output() playerMadeMove = new EventEmitter<string>();
 
   chessField: ChessField = new ChessField();
   currentSquareTarget: Square | null = null;
   dragTimer: boolean = false;
-  promotionInfo: null | { square: Square, figure: Figure } = null;
+  promotionInfo: null | { square: Square, figure: Figure, info: MoveEvent } = null;
   promotePopup: boolean =  false;
 
   private _currentSquareInfo: Square | null = null;
@@ -73,6 +75,26 @@ export class ChessFieldComponent implements OnInit {
     private pngParser: PNGParser,
   ) { }
 
+  roomDidRefresh(oldRoom: RoomInfo, newRoom: RoomInfo) {
+    if (!oldRoom || !newRoom) return;
+    if (oldRoom.gameNotation.length !== newRoom.gameNotation.length) {
+      for (let i = oldRoom.gameNotation.length; i < newRoom.gameNotation.length; i++) {
+        console.log('tick');
+        const move = newRoom.gameNotation[i];
+        const info = this.pngParser.transformMoveNotation({
+          originalMove: move,
+          color: i % 2 === 0 ? 'white' : 'black',
+          handleKingSelection: (square: Square, figure: Figure) => {
+            this.handleKingSelection(square, figure);
+          },
+          chessField: this.chessField,
+        });
+        this.automaticMove(info);
+      }
+      this.markPossibleMovesForAllFigures();
+    }
+  }
+
   useNotation() {
     if (typeof this.gameNotation === 'string') {
       this.room.gameNotation = this.pngParser.convertNotationStringToArray(this.gameNotation);
@@ -101,15 +123,7 @@ export class ChessFieldComponent implements OnInit {
     targetSquare.figure = startingSquare.figure;
     startingSquare.figure = null;
     if (targetSquare.figure instanceof Figure) {
-      targetSquare.figure.emit('onMove', {
-        startCoordinates: startingSquare.coordinates,
-        endCoordinates: targetSquare.coordinates,
-        startSquare: startingSquare,
-        endSquare: targetSquare,
-        automatic: true,
-        promotionInfo: promotionInfo,
-      });
-      this.chessField.emit('onMove', {
+      const event = new MoveEvent({
         startCoordinates: startingSquare.coordinates,
         endCoordinates: targetSquare.coordinates,
         startSquare: startingSquare,
@@ -118,6 +132,8 @@ export class ChessFieldComponent implements OnInit {
         automatic: true,
         promotionInfo: promotionInfo,
       });
+      targetSquare.figure.emit('onMove', event);
+      this.chessField.emit('onMove', event);
       targetSquare.figure.didNotMove = false;
     }
     if (capturedFigure) {
@@ -131,30 +147,36 @@ export class ChessFieldComponent implements OnInit {
     this.addEventsToFigures(figures);
     this.markPossibleMovesForAllFigures();
     this.chessField.on('onMove', info => {
-      if (!info.automatic) this.markPossibleMovesForAllFigures();
+      if (!(info instanceof MoveEvent)) return;
+      const { automatic } = info;
+      if (automatic) return;
+      this.convertMove(info);
+      this.markPossibleMovesForAllFigures();
     });
+  }
+
+  convertMove(info: MoveEvent, promoteInfo?: string) {
+    const { startCoordinates, endCoordinates, startSquare, endSquare, isCapture } = info;
+    if (!promoteInfo && endSquare.figure?.name === 'Pawn'
+    && (endSquare.figure.color === 'white' ? this.chessField.height : 1) === endCoordinates.y) return;
+
+    const move = this.pngParser.convertMoveToPGN({
+      startCoordinates, endCoordinates, startSquare, endSquare,
+      chessField: this.chessField,
+      isCapture: typeof isCapture === 'boolean' ? isCapture : false,
+      promote: promoteInfo,
+    });
+    console.log(move);
+    this.gameNotation.push(move);
+    this.playerMadeMove.emit(move);
   }
 
   addEventsToFigures(eventFigures: Figure[]) {
     eventFigures.forEach(figure => {
       if (figure.name === 'Pawn') {
         figure.on('onMove', (info) => {
-          if (typeof info !== 'object' || !info) return;
-          const { startCoordinates, endCoordinates, endSquare, automatic, promotionInfo } = info;
-          if (
-            startCoordinates instanceof SquareCoordinates
-            && endCoordinates instanceof SquareCoordinates
-            && endSquare instanceof Square
-          ) {
-            this.handlePawnMove({
-              startCoordinates,
-              endCoordinates,
-              endSquare,
-              figure,
-              automatic,
-              promotionInfo,
-            });
-          }
+          if (!(info instanceof MoveEvent)) return;
+          this.handlePawnMove(info);
         });
       }
 
@@ -174,34 +196,24 @@ export class ChessFieldComponent implements OnInit {
         figure.on('onUnselect', unselectHandler);
 
         figure.once('onMove', (info) => {
+          if (!(info instanceof MoveEvent)) return;
           if (!Array.isArray(figure.movement)) {
             figure.movement.left = 1;
             figure.movement.right = 1;
             figure.off('onSelect', selectHandler);
             figure.off('onUnselect', unselectHandler);
           }
-
-          if (typeof info !== 'object' || !info) return;
-          const { startCoordinates, endCoordinates, startSquare } = info;
-          if (
-            startCoordinates instanceof SquareCoordinates
-            && endCoordinates instanceof SquareCoordinates
-            && startSquare instanceof Square
-          ) {
-            this.handleFirstKingMove({
-              startCoordinates,
-              endCoordinates,
-              figure,
-              startSquare,
-            });
-          }
+          this.handleFirstKingMove(info);
         });
       }
     });
   }
 
   setCurrentSquareInfo(square: Square | null) {
-    if (!this.isStudy && square?.figure?.color !== this.playerColor) return;
+    if (
+      (!this.isStudy && square?.figure?.color !== this.playerColor)
+      || this.currentTurn !== this.playerColor
+    ) return;
     if (!square?.figure) {
       this.clearPossibleMoves();
       return;
@@ -256,19 +268,15 @@ export class ChessFieldComponent implements OnInit {
     targetSquare.figure = figure;
 
     if (figure instanceof Figure) {
-      figure.emit('onMove', {
+      const event = new MoveEvent({
         startCoordinates: this.currentSquareInfo.coordinates,
         endCoordinates: targetSquare.coordinates,
         startSquare: this.currentSquareInfo,
         endSquare: targetSquare,
+        figure,
       });
-      this.chessField.emit('onMove', {
-        startCoordinates: this.currentSquareInfo.coordinates,
-        endCoordinates: targetSquare.coordinates,
-        startSquare: this.currentSquareInfo,
-        endSquare: targetSquare,
-        figure: figure,
-      });
+      figure.emit('onMove', event);
+      this.chessField.emit('onMove', event);
       figure.didNotMove = false;
     }
 
@@ -284,20 +292,23 @@ export class ChessFieldComponent implements OnInit {
     this.figureCaptured.emit(capturedFigure);
     console.log('captureFigure');
     targetSquare.figure = figure;
+    this.currentSquareInfo.figure = null;
     if (figure instanceof Figure) {
-      const figureInfo = {
+      const event = new MoveEvent({
         startCoordinates: this.currentSquareInfo.coordinates,
         endCoordinates: targetSquare.coordinates,
         startSquare: this.currentSquareInfo,
         endSquare: targetSquare,
-      };
-      figure.emit('onMove', figureInfo);
-      figure.emit('onCapture', { ...figureInfo, capturedFigure })
-      this.chessField.emit('onMove', { ...figureInfo, figure: figure });
-      this.chessField.emit('onCapture', { ...figureInfo, figure: figure, capturedFigure });
+        figure,
+        capturedFigure,
+        isCapture: true,
+      });
+      figure.emit('onMove', event);
+      figure.emit('onCapture', event)
+      this.chessField.emit('onMove', event);
+      this.chessField.emit('onCapture', event);
       figure.didNotMove = false;
     }
-    this.currentSquareInfo.figure = null;
     this.currentSquareTarget = null;
   }
 
@@ -306,6 +317,7 @@ export class ChessFieldComponent implements OnInit {
   }
 
   markPossibleMovesForAllFigures() {
+    console.log('mark');
     for (let square of this.chessField.squares) {
       if (square.figure) {
         this.markPossibleMoves({ square, figure: square.figure });
@@ -774,14 +786,7 @@ export class ChessFieldComponent implements OnInit {
       });
     }
   }
-  handlePawnMove(info: {
-    startCoordinates: SquareCoordinates,
-    endCoordinates: SquareCoordinates,
-    endSquare: Square,
-    figure: Figure,
-    automatic?: boolean,
-    promotionInfo?: string,
-  }) {
+  handlePawnMove(info: MoveEvent) {
     const { figure, automatic, promotionInfo } = info;
     if (figure.didNotMove) return this.handleFirstPawnMove(info);
     const { x: startX } = info.startCoordinates;
@@ -804,15 +809,10 @@ export class ChessFieldComponent implements OnInit {
         promotedFigure.didNotMove = false;
         return;
       }
-      this.openPromotePopup(figure, info.endSquare);
+      this.openPromotePopup(figure, info);
     }
   }
-  resolveEnpassant(info: {
-    startCoordinates: SquareCoordinates,
-    endCoordinates: SquareCoordinates,
-    endSquare: Square,
-    figure: Figure,
-  }) {
+  resolveEnpassant(info: MoveEvent) {
     const { figure } = info;
     if (!(figure instanceof PawnFigure)) return;
     const { x: startX, y: startY } = info.startCoordinates;
@@ -831,11 +831,7 @@ export class ChessFieldComponent implements OnInit {
     console.log('resolveEnpassant');
     square.figure = null;
   }
-  handleFirstPawnMove(info: {
-    startCoordinates: SquareCoordinates,
-    endCoordinates: SquareCoordinates,
-    figure: Figure,
-  }) {
+  handleFirstPawnMove(info: MoveEvent) {
     const { x: startX, y: startY } = info.startCoordinates;
     const { x: endX, y: endY } = info.endCoordinates;
     const { figure } = info;
@@ -904,12 +900,7 @@ export class ChessFieldComponent implements OnInit {
     this.chessField.on('onMove', handler);
   }
 
-  handleFirstKingMove(info: {
-    startCoordinates: SquareCoordinates,
-    endCoordinates: SquareCoordinates,
-    startSquare: Square,
-    figure: Figure,
-  }) {
+  handleFirstKingMove(info: MoveEvent) {
     const { figure, startCoordinates, endCoordinates } = info;
     if (!figure.didNotMove) return;
     const { x: startX, y: startY } = startCoordinates;
@@ -998,11 +989,12 @@ export class ChessFieldComponent implements OnInit {
     this.markPossibleMoves({ square, figure });
   }
 
-  openPromotePopup(figure: Figure, square: Square) {
+  openPromotePopup(figure: Figure, info: MoveEvent) {
     if (!figure.canPromote) return;
     this.promotionInfo = {
       figure,
-      square,
+      square: info.endSquare,
+      info,
     };
     this.promotePopup = true;
   }
@@ -1013,6 +1005,8 @@ export class ChessFieldComponent implements OnInit {
     console.log('promoteFigure');
     this.promotionInfo.square.figure = figure;
     figure.didNotMove = false;
+    this.convertMove(this.promotionInfo.info, figure.nameLetter);
+    this.markPossibleMoves({ square: this.promotionInfo.square, figure: figure });
   }
 
   tryMovingAPiece(square: Square | null, targetSquare: Square | null) {
@@ -1022,7 +1016,7 @@ export class ChessFieldComponent implements OnInit {
     const xDifference = startX - endX;
     const yDifference = startY - endY;
     if (xDifference !== 0 && yDifference !== 0) {
-      // if (square.figure.)
+
     }
   }
 
@@ -1043,6 +1037,12 @@ export class ChessFieldComponent implements OnInit {
     // this.room.gameNotation = this.pngParser.convertNotationStringToArray(promotionGame);
     if (Array.isArray(this.gameNotation) && this.gameNotation.length !== 0) {
       this.useNotation();
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.room) {
+      this.roomDidRefresh(changes.room.previousValue, changes.room.currentValue);
     }
   }
 

@@ -16,7 +16,7 @@ export class Square {
 }
 
 export class SquareCoordinates {
-  _x: string;
+  private _x: string;
   y: number;
 
   constructor(x: string, y: number) {

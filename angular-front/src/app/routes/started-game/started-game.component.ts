@@ -10,7 +10,6 @@ import { WebsocketDecorator } from 'src/app/injectables/websocket';
   styleUrls: ['./started-game.component.sass']
 })
 export class StartedGameComponent implements OnInit {
-
   yourCapturedFigures: Figure[] = [];
   opponentsCapturedFigures: Figure[] = [];
   room!: RoomInfo;
@@ -29,6 +28,10 @@ export class StartedGameComponent implements OnInit {
     this.yourCapturedFigures.push(figure);
   }
 
+  onPlayerMove(move: string) {
+    this.socket.emit('makeMove', { move });
+  }
+
   ngOnInit(): void {
     if (!this.isClientSide) return;
     this.socket.on('roomSearchResult', room => {
@@ -37,6 +40,11 @@ export class StartedGameComponent implements OnInit {
         this.router.navigate(['game', 'lobby']);
         return;
       }
+      this.room = room;
+    });
+
+    this.socket.on('synchronizeGame', room => {
+      if (!isRoomInfo(room)) return;
       this.room = room;
     });
     
@@ -48,10 +56,9 @@ export class StartedGameComponent implements OnInit {
         return;
       }
       this.socket.emit('getRoom');
-      // Write all communications between started game and websocket server.
-      // Make chess field convert game notation into board state. It should not parse
-      // notation if it's invalid.
-      // Make turns and timer logic.
+      // Highlight King checks.
+      // Make it so, that you cannot make moves which would result in King's death.
+      // Make timer logic.
       // Buy a hosting and then configure nginx.
       // Make everything slightly preetier.
     });

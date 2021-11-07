@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Figure } from "../classes/chess-figures/Figure";
 import { ChessField } from "../classes/ChessField";
-import { Square } from "../classes/Square";
+import { Square, SquareCoordinates } from "../classes/Square";
 
 @Injectable({
   providedIn: 'root',
@@ -30,6 +30,66 @@ export class PNGParser {
       });
     });
     return result;
+  }
+
+  convertMoveToPGN(info: {
+    startCoordinates: SquareCoordinates,
+    endCoordinates: SquareCoordinates,
+    startSquare: Square,
+    endSquare: Square,
+    chessField: ChessField,
+    isCapture?: boolean,
+    promote?: string,
+    isCheck?: boolean,
+  }): string {
+    const {
+      startSquare,
+      endSquare,
+      startCoordinates: { x: startX, xLetter: startXLetter, y: startY },
+      endCoordinates: { x: endX, xLetter: endXLetter, y: endY },
+      chessField,
+      isCapture,
+      promote,
+      isCheck,
+    } = info;
+    if (!endSquare.figure) return '';
+    const figureName = endSquare.figure.nameLetter;
+    if (figureName === 'K' && Math.abs(startX - endX) === 2) {
+      return startX > endX ? 'O-O-O' : 'O-O';
+    }
+    let originalSquare = '';
+    const capture = isCapture ? 'x' : '';
+    const check = isCheck ? '+' : '';
+    const promoteTo = promote ? `=${promote}` : '';
+    if (isCapture && ((promote && figureName) || !figureName)) {
+      originalSquare = startXLetter;
+    } else if (figureName) {
+      let recordX = false, recordY = false;
+      let figureCount = 0;
+      for (let square of chessField.squares) {
+        if (recordX && recordY) break;
+        if (!square.figure) continue;
+        if (
+          square.figure.name !== endSquare.figure.name
+          || square.figure.color !== endSquare.figure.color
+        ) continue;
+        const { x, y } = square.coordinates;
+
+        if (!square.figure.moveIsPossible(endX, endY) || (x === endX && y === endY)) continue;
+        figureCount++;
+        if (x === startX) recordY = true;
+        if (y === startY) recordX = true;
+        if (figureCount >= 2) {
+          recordY = true;
+          recordX = true;
+        } else {
+          recordY = true;
+        }
+      }
+      originalSquare = `${recordX ? startXLetter : ''}${recordY ? startY : ''}`;
+    }
+    const targetSquare = `${endXLetter}${endY}`;
+    return `${promote ? '' : figureName}${originalSquare}${capture}${targetSquare}${promoteTo}${check}`;
   }
 
   transformMoveNotation(info: {

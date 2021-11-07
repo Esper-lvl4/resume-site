@@ -8,6 +8,7 @@
   *ngIf="room"
   [room]="room"
   (figureCaptured)="figureCaptured($event)"
+  (playerMadeMove)="onPlayerMove($event)"
 ></app-chess-field>
 <div class="captured-figures">
   <app-chess-figure
