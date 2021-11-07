@@ -69,11 +69,11 @@ export class ChessFieldSquareComponent implements OnInit {
   }
 
   chooseFigure() {
-    this.grabFigure.emit(this.square);
+    // this.grabFigure.emit(this.square);
   }
 
   unchooseFigure() {
-    this.dropFigure.emit(this.square);
+    // this.dropFigure.emit(this.square);
   }
 
   changeTargetSquare() {
