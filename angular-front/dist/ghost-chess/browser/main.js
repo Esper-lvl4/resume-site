@@ -3212,8 +3212,9 @@ class StartedGameComponent {
             this.socket.emit('getRoom');
             // Highlight King checks.
             // Make it so, that you cannot make moves which would result in King's death.
+            // Show player's advantage or disadvantage, using pieces weight.
+            // Show game notation to the user (formatted a little bit).
             // Make timer logic.
-            // Buy a hosting and then configure nginx.
             // Make everything slightly preetier.
         });
     }
