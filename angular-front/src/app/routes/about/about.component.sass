@@ -1,0 +1,77 @@
+.resume
+	padding: 20px 15px
+	font: 16px/1.1 'Roboto', sans-serif
+
+.header
+	display: flex
+	flex-flow: row wrap
+	justify-content: space-between
+
+.header-title
+	display: flex
+	flex-flow: row wrap
+	justify-content: space-between
+	width: 100%
+	padding: 10px 0
+	border-bottom: 2px solid #000000
+	font-weight: 600
+	text-transform: uppercase
+
+.header-title
+	h1
+		margin: 10px 20px 10px 0
+
+	span
+		display: inline-block
+		margin: 10px 0
+		font-size: 26px
+		color: #666666
+
+.header-description
+	max-width: 550px
+
+.header-contacts
+	a
+		display: inline-block
+		margin-left: 10px
+		color: #6666ff
+		transition: all 0.3s ease
+		&:hover
+			color: #ff6666
+
+.skill-list
+	display: grid
+	grid-template: auto / repeat(auto-fit, 450px)
+	grid-auto-rows: 1fr
+	justify-content: space-between
+
+.info-title
+	padding: 10px 0 15px
+	border-bottom: 2px solid #000000
+
+.skill
+	padding-left: 20px
+
+.skill-title
+	list-style: none
+	padding-bottom: 15px
+	margin-left: -20px
+	font-weight: 600
+
+.skill, .prev-job-duties, .header-contacts
+	li:nth-of-type(n+2)
+		margin-top: 8px
+
+.prev-job-position
+	font-size: 18px
+
+@media (max-width: 550px)
+	.resume
+		font-size: 14px
+
+	.header-title
+		span, h1
+			font-size: 20px
+
+	.skill-list
+		grid-template-columns: 100%

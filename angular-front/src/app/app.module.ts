@@ -20,6 +20,7 @@ import { StartedGameComponent } from './routes/started-game/started-game.compone
 import { RoomListComponent } from './components/room-list/room-list.component';
 import { RoomItemComponent } from './components/room-item/room-item.component';
 import { HostRoomPopupComponent } from './popups/host-room-popup/host-room-popup.component';
+import { AboutComponent } from './routes/about/about.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import { HostRoomPopupComponent } from './popups/host-room-popup/host-room-popup
     StartedGameComponent,
     RoomListComponent,
     RoomItemComponent,
-    HostRoomPopupComponent
+    HostRoomPopupComponent,
+    AboutComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),

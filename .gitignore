@@ -9,6 +9,7 @@ angular-front/bazel-out
 
 # dependencies
 node_modules
+/old_portfolio
 
 # profiling files
 chrome-profiler-events*.json
