@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { KingFigure } from 'src/app/classes/chess-figures';
 import { Figure } from 'src/app/classes/chess-figures/Figure';
 
 @Component({
@@ -15,6 +16,10 @@ export class ChessFigureComponent implements OnInit {
 
   get image() {
     return this.figure?.image || '#';
+  }
+
+  get figureIsInCheck() {
+    return this.figure instanceof KingFigure && this.figure.isInCheck;
   }
 
   constructor() { }

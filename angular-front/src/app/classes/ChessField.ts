@@ -1,7 +1,8 @@
 import { BishopFigure, KingFigure, KnightFigure, PawnFigure, QueenFigure, RookFigure } from "src/app/classes/chess-figures";
 import { Figure } from "src/app/classes/chess-figures/Figure";
 import { Events } from "./Events";
-import { defaultLetters, Square } from "./Square";
+import { defaultLetters, Square, SquareWithFigure, SquareWithKing } from "./Square";
+
 
 export class ChessField extends Events {
   squares: Square[] = [];
@@ -91,6 +92,37 @@ export class ChessField extends Events {
       outerIncrement();
     }
     return eventFigures;
+  }
+
+  traverse(handler: (square: Square) => boolean | void) {
+    for (let square of this.squares) {
+      const stopTraversing = handler(square);
+      if (stopTraversing) break;
+    }
+  }
+
+  findKingsSquares(): {
+    whiteKingSquare: SquareWithKing | null,
+    blackKingSquare: SquareWithKing | null,
+  } {
+    const result: {
+      whiteKingSquare: SquareWithKing | null,
+      blackKingSquare: SquareWithKing | null,
+    } = {
+      whiteKingSquare: null,
+      blackKingSquare: null,
+    };
+    for (let square of this.squares) {
+      if (!(square.figure instanceof KingFigure)) continue;
+      if (square.figure.color === 'white') {
+        result.whiteKingSquare = square as SquareWithKing;
+      }
+      if (square.figure.color === 'black') {
+        result.blackKingSquare = square as SquareWithKing;
+      }
+      if (result.whiteKingSquare && result.blackKingSquare) break;
+    }
+    return result;
   }
 
   findSquares(handler: (square: Square) => boolean): Square[] {

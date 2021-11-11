@@ -1,6 +1,7 @@
 import { Figure, FigureMovement } from "./Figure";
 
 export class KingFigure extends Figure {
+  threateningFigures: Figure[] = [];
   constructor(color: Figure['color']) {
     super({
       name: 'King',
@@ -18,6 +19,10 @@ export class KingFigure extends Figure {
         bottomRight: 1,
       }),
     });
+  }
+
+  get isInCheck(): boolean {
+    return this.threateningFigures.length !== 0;
   }
 }
 

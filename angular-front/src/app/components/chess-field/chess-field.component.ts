@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChange, SimpleChanges, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CoordinatesMap, Figure, FigureMovement } from 'src/app/classes/chess-figures/Figure';
 import {
   PawnFigure,
@@ -122,8 +122,9 @@ export class ChessFieldComponent implements OnInit, OnChanges {
     console.log('automaticMove');
     targetSquare.figure = startingSquare.figure;
     startingSquare.figure = null;
+    let event!: MoveEvent;
     if (targetSquare.figure instanceof Figure) {
-      const event = new MoveEvent({
+      event = new MoveEvent({
         startCoordinates: startingSquare.coordinates,
         endCoordinates: targetSquare.coordinates,
         startSquare: startingSquare,
@@ -140,6 +141,7 @@ export class ChessFieldComponent implements OnInit, OnChanges {
       this.figureCaptured.emit(capturedFigure);
     }
     this.markPossibleMovesForAllFigures();
+    this.confirmKingsSafety();
   }
 
   generateField() {
@@ -152,6 +154,34 @@ export class ChessFieldComponent implements OnInit, OnChanges {
       if (automatic) return;
       this.convertMove(info);
       this.markPossibleMovesForAllFigures();
+      this.confirmKingsSafety();
+    });
+  }
+
+  confirmKingsSafety() {
+    const { whiteKingSquare, blackKingSquare } = this.chessField.findKingsSquares();
+    if (!whiteKingSquare || !blackKingSquare) return;
+    const { x: whiteKingX, y: whiteKingY } = whiteKingSquare.coordinates;
+    const { x: blackKingX, y: blackKingY } = blackKingSquare.coordinates;
+    const whiteKing = whiteKingSquare.figure;
+    const blackKing = blackKingSquare.figure;
+    whiteKing.threateningFigures = [];
+    blackKing.threateningFigures = [];
+
+    this.chessField.traverse(square => {
+      if (!square.figure || square.figure instanceof KingFigure) return;
+      if (
+        square.figure.color !== whiteKing.color
+        && square.figure.moveIsPossible(whiteKingX, whiteKingY)
+      ) {
+        whiteKing.threateningFigures.push(square.figure);
+      }
+      if (
+        square.figure.color !== blackKing.color
+        && square.figure.moveIsPossible(blackKingX, blackKingY)
+      ) {
+        blackKing.threateningFigures.push(square.figure);
+      }
     });
   }
 

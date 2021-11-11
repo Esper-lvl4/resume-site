@@ -1,5 +1,6 @@
 <div
   class="chess-field-square-figure"
+  [class.is-in-check]="figureIsInCheck"
 >
   <img [src]="image" [alt]="name">
 </div>

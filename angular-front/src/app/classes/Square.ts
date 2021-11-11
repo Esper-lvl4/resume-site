@@ -1,4 +1,5 @@
 import { Figure } from "src/app/classes/chess-figures/Figure";
+import { KingFigure } from "./chess-figures";
 
 export const defaultLetters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
@@ -32,3 +33,6 @@ export class SquareCoordinates {
     return this._x;
   }
 }
+
+export type SquareWithFigure = Omit<Square, 'figure'> & { figure: Figure };
+export type SquareWithKing = Omit<Square, 'figure'> & { figure: KingFigure };
