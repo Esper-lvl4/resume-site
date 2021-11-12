@@ -71,7 +71,11 @@ export class Figure extends Events {
 
   didNotMove: boolean = true;
 
+  // moves that are possible considering current board state.
   possibleMoves: CoordinatesMap = {};
+  // moves that are not possible because of current board state. Does not include moves
+  // that are completely illegal for this figure. 
+  impossibleMoves: CoordinatesMap = {};
 
   constructor(info: {
     name: Figure['name'],
@@ -122,13 +126,38 @@ export class Figure extends Events {
       : (index === 0 ? this.movement : undefined);
   }
 
+  traversePossibleMoves(handler: (x: number, y: number, direction: string) => void) {
+    Object.keys(this.possibleMoves).forEach(currentX => {
+      Object.keys(this.possibleMoves[currentX]).forEach(currentY => {
+        handler(+currentX, +currentY, this.possibleMoves[currentX][currentY]);
+      });
+    });
+  }
+
   setPossibleMove(x: number, y: number, direction: string) {
     if (!this.possibleMoves[x]) this.possibleMoves[x] = {};
     this.possibleMoves[x][y] = direction;
   }
 
+  setImpossibleMove(x: number, y: number, direction: string) {
+    if (!this.impossibleMoves[x]) this.impossibleMoves[x] = {};
+    this.impossibleMoves[x][y] = direction;
+  }
+
   getPossibleMove(x: number, y: number): string | false {
     return (this.possibleMoves[x] && this.possibleMoves[x][y]) || false;
+  }
+
+  getImpossibleMove(x: number, y: number): string | false {
+    return (this.impossibleMoves[x] && this.impossibleMoves[x][y]) || false;
+  }
+
+  moveIsImpossible(x: string | number, y: number): boolean {
+    const targetX = typeof x === 'string'
+      ? defaultLetters.findIndex(letter => letter === x) + 1
+      : x;
+    if (targetX === 0) return false;
+    return !!(this.impossibleMoves[targetX] && this.impossibleMoves[targetX][y]);
   }
 
   moveIsPossible(x: string | number, y: number): boolean {
@@ -141,6 +170,7 @@ export class Figure extends Events {
 
   clearPossibleMoves() {
     this.possibleMoves = {};
+    this.impossibleMoves = {};
   }
 
   clone(color: Figure['color']): Figure {

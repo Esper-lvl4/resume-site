@@ -1,9 +1,9 @@
 import { BishopFigure, KingFigure, KnightFigure, PawnFigure, QueenFigure, RookFigure } from "src/app/classes/chess-figures";
 import { Figure } from "src/app/classes/chess-figures/Figure";
 import { Events } from "./Events";
-import { defaultLetters, Square, SquareWithFigure, SquareWithKing } from "./Square";
+import { defaultLetters, Square, SquareCoordinates, SquareWithFigure, SquareWithKing } from "./Square";
 
-
+type SquareOrItsCoordinates = Square | SquareCoordinates | Pick<SquareCoordinates, 'x' | 'y'>;
 export class ChessField extends Events {
   squares: Square[] = [];
   width: number = 8;
@@ -92,6 +92,58 @@ export class ChessField extends Events {
       outerIncrement();
     }
     return eventFigures;
+  }
+
+  parseCoordinates(...squares: SquareOrItsCoordinates[]): number[] {
+    const result: number[] = [];
+    squares.forEach(square => {
+      result.push(square instanceof Square ? square.coordinates.x : square.x);
+      result.push(square instanceof Square ? square.coordinates.y : square.y);
+    });
+    return result;
+  }
+
+  getOccupiedSquaresBetween(
+    square1: SquareOrItsCoordinates,
+    square2: SquareOrItsCoordinates
+  ): SquareWithFigure[] {
+    const [ x1, y1, x2, y2 ] = this.parseCoordinates(square1, square2);
+    const isSameX = x1 === x2;
+    const isSameY = y1 === y2;
+    const isSameDiagonal = this.squaresAreOnTheSameDiagonal(square1, square2);
+    if (!isSameX && !isSameY && !isSameDiagonal) {
+      return [];
+    }
+    return this.findSquares(square => {
+      return !!square.figure
+        && this.squareIsBetweenTwoSquares(square, square1, square2);
+    }) as SquareWithFigure[];
+  }
+
+  squaresAreOnTheSameDiagonal(
+    square1: SquareOrItsCoordinates,
+    square2: SquareOrItsCoordinates,
+  ): boolean {
+    const [ x1, y1, x2, y2 ] = this.parseCoordinates(square1, square2);
+    return Math.abs(x1 - x2) === Math.abs(y1 - y2);
+  }
+
+  squareIsBetweenTwoSquares(
+    targetSquare: SquareOrItsCoordinates,
+    square1: SquareOrItsCoordinates,
+    square2: SquareOrItsCoordinates,
+  ): boolean {
+    const [x, y, x1, y1, x2, y2] = this.parseCoordinates(targetSquare, square1, square2);
+    const isSameSquare = (x == x1 && y === y1) || (x === x2 && y === y2);
+    const isSameX = x1 === x2 && x === x1;
+    const isSameY = y1 === y2 && y === y1;
+    const isSameDiagonal = this.squaresAreOnTheSameDiagonal(square1, square2)
+      && this.squaresAreOnTheSameDiagonal(targetSquare, square1);
+    if ((!isSameX && !isSameY && !isSameDiagonal) || isSameSquare) return false;
+    const yIsBetween = (y < y1 && y > y2) || (y > y1 && y < y2);
+    const xIsBetween = (x < x1 && x > x2) || (x > x1 && x < x2);
+    return (isSameX && yIsBetween) || (isSameY && xIsBetween)
+        || (isSameDiagonal && yIsBetween && xIsBetween);
   }
 
   traverse(handler: (square: Square) => boolean | void) {

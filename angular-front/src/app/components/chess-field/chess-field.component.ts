@@ -4,7 +4,7 @@ import {
   PawnFigure,
   KingFigure,
 } from 'src/app/classes/chess-figures';
-import { Square, SquareCoordinates } from '../../classes/Square';
+import { Square, SquareCoordinates, SquareWithFigure, SquareWithKing } from '../../classes/Square';
 import { ChessField } from '../../classes/ChessField';
 import RoomInfo from 'src/app/classes/RoomInfo';
 import { WebsocketDecorator } from 'src/app/injectables/websocket';
@@ -268,23 +268,71 @@ export class ChessFieldComponent implements OnInit, OnChanges {
   showValidMoves(square: Square | null) {
     this.clearPossibleMoves();
     if (!square?.figure) return;
-
+    const traitorMoves = this.getTraitorMoves(square, square.figure);
     const { figure } = square;
     this.chessField.squares.forEach(currentSquare => {
       const { x, y } = currentSquare.coordinates;
-      if (!figure.getPossibleMove(x, y)) return;
-      if (!figure.isCoward) {
-        currentSquare.isPossibleMove = true;
+      if (
+        !figure.moveIsPossible(x, y)
+        || (traitorMoves[x] && traitorMoves[x][y])
+      ) return;
+
+      if (figure.isCoward) {
+        const capturerSquare = this.chessField.findSquare(checkedSquare => {
+          const { figure: currentFigure } = checkedSquare;
+          if (!currentFigure || currentFigure.color === figure.color) return false;
+          return currentFigure.moveIsPossible(x, y);
+        });
+        if (!capturerSquare) currentSquare.isPossibleMove = true;
         return;
       }
-      const capturerSquare = this.chessField.findSquare(checkedSquare => {
-        const { figure: currentFigure } = checkedSquare;
-        if (!currentFigure || currentFigure.color === figure.color) return false;
-        const { possibleMoves } = currentFigure;
-        return possibleMoves[x] ? possibleMoves[x][y] !== undefined : false;
-      });
-      if (!capturerSquare) currentSquare.isPossibleMove = true;
+      
+      currentSquare.isPossibleMove = true;
     });
+  }
+
+  getTraitorMoves(square: Square, figure: Figure): CoordinatesMap {
+    const result: CoordinatesMap = {};
+    if (figure instanceof KingFigure) return result;
+    const { x: figureX, y: figureY } = square.coordinates;
+    const { whiteKingSquare, blackKingSquare } = this.chessField.findKingsSquares();
+    const kingSquare = figure.color === 'white' ? whiteKingSquare : blackKingSquare;
+    if (!kingSquare) return result;
+
+    const { x: kingX, y: kingY } = kingSquare.coordinates;
+    if (
+      figureX !== kingX
+      && figureY !== kingY
+      && !this.chessField.squaresAreOnTheSameDiagonal(kingSquare, square)
+    ) return result;
+
+    const potentialThreatsSquares: SquareWithFigure[] = this.chessField.findSquares(currentSquare => {
+      if (!currentSquare.figure || currentSquare.figure.color === figure.color) return false;
+      return currentSquare.figure.moveIsImpossible(kingX, kingY);
+    }) as SquareWithFigure[];
+
+    potentialThreatsSquares.forEach(currentSquare => {
+      const { x: currentX, y: currentY } = currentSquare.coordinates;
+      if (
+        !this.chessField.squaresAreOnTheSameDiagonal(currentSquare, square)
+        && figureX !== currentX
+        && figureY !== currentY
+      ) return;
+      const squaresBetween = this.chessField.getOccupiedSquaresBetween(kingSquare, currentSquare);
+      if (squaresBetween.length > 1) return;
+      const { figure: currentFigure } = currentSquare;
+      if (!currentFigure.moveIsImpossible(kingX, kingY)) return;
+
+      figure.traversePossibleMoves((x, y, direction) => {
+        if (this.chessField.squareIsBetweenTwoSquares({ x: +x, y: +y }, kingSquare, currentSquare)) {
+          return;
+        }
+        if (!result[x]) result[x] = {};
+        result[x][y] = direction;
+      });
+    });
+
+    return result;
   }
 
   moveCurrentFigure(targetSquare: Square | null) {
@@ -347,10 +395,12 @@ export class ChessFieldComponent implements OnInit, OnChanges {
   }
 
   markPossibleMovesForAllFigures() {
-    console.log('mark');
     for (let square of this.chessField.squares) {
       if (square.figure) {
-        this.markPossibleMoves({ square, figure: square.figure });
+        this.markPossibleMoves({
+          square,
+          figure: square.figure,
+        });
       }
     }
   }
@@ -534,7 +584,10 @@ export class ChessFieldComponent implements OnInit, OnChanges {
     // In case of figures, that moves in one way and captures in another way (like pawns),
     // we call this function again, telling her, that it's a capture movement.
     if (!captureMovement && !currentMove && figure.captureMovement) {
-      this.markPossibleMoves({ ...info, captureMovement: figure.captureMovement });
+      this.markPossibleMoves({
+        ...info,
+        captureMovement: figure.captureMovement,
+      });
     }
   }
 
@@ -757,7 +810,8 @@ export class ChessFieldComponent implements OnInit, OnChanges {
     const currentMovement = info.captureMovement || figure.getCurrentMovement(currentMove);
     if (!currentMovement || (noStop && squareList.length !== distance)) return;
 
-    const validSquares: Square[] = []; 
+    const validSquares: Square[] = [];
+    const invalidSquares: Square[] = [];
 
     if (squareList.length === distance || distance === Infinity) {
       for (let i = 0; i < squareList.length; i++) {
@@ -768,14 +822,17 @@ export class ChessFieldComponent implements OnInit, OnChanges {
         const squareHasNoFigureOfSameColor = currentSquare.figure?.color !== figure.color;
         const squareHasFigureOfDifferentColor = currentSquare.figure
           && currentSquare.figure.color !== figure.color;
+        const stoppedMarkingPossibleMoves = couldNotPass || lastSquare;
         
         if (
+          !stoppedMarkingPossibleMoves &&
           (!info.captureMovement && figureCanStop && canMoveIntoSquare
           && squareHasNoFigureOfSameColor)
           || (info.captureMovement && squareHasFigureOfDifferentColor)
         ) {
           validSquares.push(currentSquare);
         } else if (
+          !stoppedMarkingPossibleMoves &&
           info.captureMovement && figure instanceof PawnFigure
           && figure.canCapturePawnInFront && info.square
         ) {
@@ -791,12 +848,13 @@ export class ChessFieldComponent implements OnInit, OnChanges {
             (isWhite && (takeOnLeft || takeOnRight) && takeOnTop)
             || (!isWhite && (takeOnLeft || takeOnRight) && takeOnBottom)
           ) validSquares.push(currentSquare);
+        } else if (figureCanStop) {
+          invalidSquares.push(currentSquare);
         }
 
         if (!ignoreCollision && currentSquare.figure) {
           couldNotPass = noStop && i !== squareList.length - 1;
           lastSquare = currentSquare;
-          break;
         }
       }
     }
@@ -804,6 +862,11 @@ export class ChessFieldComponent implements OnInit, OnChanges {
     validSquares.forEach(validSquare => {
       const { x, y } = validSquare.coordinates;
       figure.setPossibleMove(x, y, direction);
+    });
+
+    invalidSquares.forEach(invalidSquare => {
+      const { x, y } = invalidSquare.coordinates;
+      figure.setImpossibleMove(x, y, direction);
     });
 
     if (!info.captureMovement && !couldNotPass && numberOfMoves - 1 !== currentMove) {
