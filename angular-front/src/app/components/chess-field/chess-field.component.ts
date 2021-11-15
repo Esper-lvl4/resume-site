@@ -1211,6 +1211,7 @@ export class ChessFieldComponent implements OnInit, OnChanges {
     figure.didNotMove = false;
     this.convertMove(this.promotionInfo.info, figure.nameLetter);
     this.markPossibleMoves({ square: this.promotionInfo.square, figure: figure });
+    this.figureAdvantage.calculate(this.chessField)
   }
 
   tryMovingAPiece(square: Square | null, targetSquare: Square | null) {

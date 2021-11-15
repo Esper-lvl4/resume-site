@@ -56,8 +56,8 @@ export class StartedGameComponent implements OnInit {
         return;
       }
       this.socket.emit('getRoom');
-      // Show player's advantage or disadvantage, using pieces weight.
       // Show game notation to the user (formatted a little bit).
+      // Show who's turn it is now.
       // Make timer logic.
       // Make everything slightly preetier.
     });
