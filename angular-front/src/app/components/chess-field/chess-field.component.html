@@ -9,6 +9,7 @@
       [playerColor]="playerColor"
       [width]="chessField.width"
       [height]="chessField.height"
+      [lastMove]="lastMove"
       (grabFigure)="setCurrentSquareInfo($event)"
       (dropFigure)="moveCurrentFigure($event)"
       (clearPossibleMoves)="clearPossibleMoves()"

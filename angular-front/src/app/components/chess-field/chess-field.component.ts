@@ -37,6 +37,7 @@ export class ChessFieldComponent implements OnInit, OnChanges {
   isCheckMate: boolean = false;
   isCheck: boolean = false;
   kingSaveMoves: CoordinatesMap = {};
+  lastMove: { from: Square, to: Square } | null = null;
 
   private _currentSquareInfo: Square | null = null;
   get currentSquareInfo(): Square | null {
@@ -101,6 +102,9 @@ export class ChessFieldComponent implements OnInit, OnChanges {
     if ((oldLength && !newLength) || (!oldLength && !newLength)) {
       console.log('refresh generate: ', this.playerColor);
       this.chessField.reset();
+      this.isCheckMate = false;
+      this.isCheck = false;
+      this.lastMove = null;
       this.generateField();
       return;
     }
@@ -163,6 +167,7 @@ export class ChessFieldComponent implements OnInit, OnChanges {
       this.chessField.emit('onMove', event);
       targetSquare.figure.didNotMove = false;
     }
+    this.lastMove = { from: startingSquare, to: targetSquare };
     this.figureAdvantage.calculate(this.chessField);
     this.markPossibleMovesForAllFigures();
     this.confirmKingsSafety();
@@ -216,7 +221,8 @@ export class ChessFieldComponent implements OnInit, OnChanges {
       ? whiteKingSquare
       : blackKingSquare
     );
-    this.isCheckMate = true;
+    if (!isCheckMate) return;
+    this.isCheckMate = isCheckMate;
     this.socket.emit('checkmateReached', {
       winningPlayer: whiteKing.attackerSquares.length
         ? 'black'
@@ -481,6 +487,8 @@ export class ChessFieldComponent implements OnInit, OnChanges {
       this.chessField.emit('onMove', event);
       figure.didNotMove = false;
     }
+
+    this.lastMove = { from: this.currentSquareInfo, to: targetSquare };
 
     this.currentSquareInfo = null;
     this.currentSquareTarget = null;

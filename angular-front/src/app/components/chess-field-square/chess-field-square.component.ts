@@ -13,6 +13,7 @@ export class ChessFieldSquareComponent implements OnInit {
   @Input() playerColor: Figure['color'] = 'white';
   @Input() width: number = 8;
   @Input() height: number = 8;
+  @Input() lastMove: { from: Square, to: Square } | null = null;
 
   @Output() grabFigure = new EventEmitter<Square | null>();
   @Output() dropFigure = new EventEmitter<Square | null>();
@@ -46,6 +47,14 @@ export class ChessFieldSquareComponent implements OnInit {
 
   get isPossibleMove(): Square['isPossibleMove'] {
     return this.square?.isPossibleMove || false;
+  }
+
+  get isLastMove(): boolean {
+    if (!this.lastMove || !this.square) return false;
+    const { x: fromX, y: fromY } = this.lastMove.from.coordinates;
+    const { x: toX, y: toY } = this.lastMove.to.coordinates;
+    const { x, y } = this.square?.coordinates;
+    return (x === fromX && y === fromY) || (x === toX && y === toY);
   }
 
   constructor() { }
