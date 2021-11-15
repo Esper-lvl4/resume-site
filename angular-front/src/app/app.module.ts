@@ -21,6 +21,7 @@ import { RoomListComponent } from './components/room-list/room-list.component';
 import { RoomItemComponent } from './components/room-item/room-item.component';
 import { HostRoomPopupComponent } from './popups/host-room-popup/host-room-popup.component';
 import { AboutComponent } from './routes/about/about.component';
+import { ChessAdvantageComponent } from './components/chess-advantage/chess-advantage.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +42,8 @@ import { AboutComponent } from './routes/about/about.component';
     RoomListComponent,
     RoomItemComponent,
     HostRoomPopupComponent,
-    AboutComponent
+    AboutComponent,
+    ChessAdvantageComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),

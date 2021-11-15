@@ -1,9 +1,7 @@
 import { BishopFigure, KingFigure, KnightFigure, PawnFigure, QueenFigure, RookFigure } from "src/app/classes/chess-figures";
 import { Figure } from "src/app/classes/chess-figures/Figure";
 import { Events } from "./Events";
-import { defaultLetters, Square, SquareCoordinates, SquareWithFigure, SquareWithKing } from "./Square";
-
-type SquareOrItsCoordinates = Square | SquareCoordinates | Pick<SquareCoordinates, 'x' | 'y'>;
+import { defaultLetters, Square, SquareCoordinates, SquareOrItsCoordinates, SquareWithFigure, SquareWithKing } from "./Square";
 export class ChessField extends Events {
   squares: Square[] = [];
   width: number = 8;
@@ -73,7 +71,7 @@ export class ChessField extends Events {
             eventFigures.push(figure);
           }
           if (x === 2 || x === 7) figure = new KnightFigure(color);
-          if (x === 3 || x === 6) figure = new QueenFigure(color);
+          if (x === 3 || x === 6) figure = new BishopFigure(color);
           if (x === 4) figure = new QueenFigure(color);
           if (x === 5) {
             figure = new KingFigure(color);
@@ -118,6 +116,22 @@ export class ChessField extends Events {
       return !!square.figure
         && this.squareIsBetweenTwoSquares(square, square1, square2);
     }) as SquareWithFigure[];
+  }
+
+  getAllSquaresBetween(
+    square1: SquareOrItsCoordinates,
+    square2: SquareOrItsCoordinates
+  ): Square[] {
+    const [ x1, y1, x2, y2 ] = this.parseCoordinates(square1, square2);
+    const isSameX = x1 === x2;
+    const isSameY = y1 === y2;
+    const isSameDiagonal = this.squaresAreOnTheSameDiagonal(square1, square2);
+    if (!isSameX && !isSameY && !isSameDiagonal) {
+      return [];
+    }
+    return this.findSquares(square => {
+      return this.squareIsBetweenTwoSquares(square, square1, square2);
+    }) as Square[];
   }
 
   squaresAreOnTheSameDiagonal(

@@ -1,22 +1,27 @@
-<div class="chess-field">
-  <app-chess-field-square
-    *ngFor="let square of squares"
-    [square]="square"
-    [playerColor]="playerColor"
-    [width]="chessField.width"
-    [height]="chessField.height"
-    (grabFigure)="setCurrentSquareInfo($event)"
-    (dropFigure)="moveCurrentFigure($event)"
-    (clearPossibleMoves)="clearPossibleMoves()"
-    (targetSquareChange)="changeTargetSquare($event)"
-    (captureFigure)="captureFigure($event)"
-  ></app-chess-field-square>
-  <app-promote-popup
-    [(visible)]="promotePopup"
-    [promotionInfo]="promotionInfo"
-    [promoteVariants]="chessField.promoteVariants"
-    [playerColor]="playerColor"
-    [width]="chessField.width"
-    (promoteVariantChosen)="promoteFigure($event)"
-  ></app-promote-popup>
+<div class="chess-field-wrapper">
+  <app-chess-advantage [figures]="opponentAdvantage"></app-chess-advantage>
+  <div class="chess-field">
+    <app-chess-field-square
+      *ngFor="let square of squares"
+      [square]="square"
+      [playerColor]="playerColor"
+      [width]="chessField.width"
+      [height]="chessField.height"
+      (grabFigure)="setCurrentSquareInfo($event)"
+      (dropFigure)="moveCurrentFigure($event)"
+      (clearPossibleMoves)="clearPossibleMoves()"
+      (targetSquareChange)="changeTargetSquare($event)"
+      (captureFigure)="captureFigure($event)"
+    ></app-chess-field-square>
+    <app-promote-popup
+      [(visible)]="promotePopup"
+      [promotionInfo]="promotionInfo"
+      [promoteVariants]="chessField.promoteVariants"
+      [playerColor]="playerColor"
+      [width]="chessField.width"
+      (promoteVariantChosen)="promoteFigure($event)"
+    ></app-promote-popup>
+  </div>
+  <app-chess-advantage [figures]="yourAdvantage"></app-chess-advantage>
 </div>
+

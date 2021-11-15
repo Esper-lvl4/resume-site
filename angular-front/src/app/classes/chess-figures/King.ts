@@ -1,7 +1,8 @@
+import { SquareWithFigure } from "../Square";
 import { Figure, FigureMovement } from "./Figure";
 
 export class KingFigure extends Figure {
-  threateningFigures: Figure[] = [];
+  attackerSquares: SquareWithFigure[] = [];
   constructor(color: Figure['color']) {
     super({
       name: 'King',
@@ -22,7 +23,7 @@ export class KingFigure extends Figure {
   }
 
   get isInCheck(): boolean {
-    return this.threateningFigures.length !== 0;
+    return this.attackerSquares.length !== 0;
   }
 }
 

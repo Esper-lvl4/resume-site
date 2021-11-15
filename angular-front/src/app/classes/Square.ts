@@ -36,3 +36,4 @@ export class SquareCoordinates {
 
 export type SquareWithFigure = Omit<Square, 'figure'> & { figure: Figure };
 export type SquareWithKing = Omit<Square, 'figure'> & { figure: KingFigure };
+export type SquareOrItsCoordinates = Square | SquareCoordinates | Pick<SquareCoordinates, 'x' | 'y'>;

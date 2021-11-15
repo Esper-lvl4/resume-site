@@ -126,12 +126,13 @@ export class Figure extends Events {
       : (index === 0 ? this.movement : undefined);
   }
 
-  traversePossibleMoves(handler: (x: number, y: number, direction: string) => void) {
-    Object.keys(this.possibleMoves).forEach(currentX => {
-      Object.keys(this.possibleMoves[currentX]).forEach(currentY => {
-        handler(+currentX, +currentY, this.possibleMoves[currentX][currentY]);
-      });
-    });
+  traversePossibleMoves(handler: (x: number, y: number, direction: string) => void | boolean) {
+    xLoop: for (let currentX of Object.keys(this.possibleMoves)) {
+      for (let currentY of Object.keys(this.possibleMoves[currentX])) {
+        const stopLoop = handler(+currentX, +currentY, this.possibleMoves[currentX][currentY]);
+        if (stopLoop) break xLoop;
+      }
+    }
   }
 
   setPossibleMove(x: number, y: number, direction: string) {
