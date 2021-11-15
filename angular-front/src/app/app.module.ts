@@ -23,6 +23,7 @@ import { HostRoomPopupComponent } from './popups/host-room-popup/host-room-popup
 import { AboutComponent } from './routes/about/about.component';
 import { ChessAdvantageComponent } from './components/chess-advantage/chess-advantage.component';
 import { ChessNotationComponent } from './components/chess-notation/chess-notation.component';
+import { ChessToolsPanelComponent } from './components/chess-tools-panel/chess-tools-panel.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { ChessNotationComponent } from './components/chess-notation/chess-notati
     HostRoomPopupComponent,
     AboutComponent,
     ChessAdvantageComponent,
-    ChessNotationComponent
+    ChessNotationComponent,
+    ChessToolsPanelComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),

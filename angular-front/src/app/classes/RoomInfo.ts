@@ -6,6 +6,7 @@ export interface RoomInfo {
   players: UserInfo[];
   gameNotation: string[];
   gameHasStarted: boolean;
+  isFinished: boolean;
   maxPlayers: number;
   hostId: string;
 }
@@ -17,6 +18,7 @@ export function isRoomInfo(item: any): item is RoomInfo {
     && Array.isArray(item.players)
     && Array.isArray(item.gameNotation)
     && typeof item.gameHasStarted === 'boolean'
+    && typeof item.isFinished === 'boolean'
     && typeof item.maxPlayers === 'number'
     && typeof item.hostId === 'string';
 }

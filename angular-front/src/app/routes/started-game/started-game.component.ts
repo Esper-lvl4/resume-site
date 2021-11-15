@@ -3,6 +3,7 @@ import { Figure } from 'src/app/classes/chess-figures/Figure';
 import { Router, ActivatedRoute } from '@angular/router';
 import RoomInfo, { isRoomInfo } from 'src/app/classes/RoomInfo';
 import { WebsocketDecorator } from 'src/app/injectables/websocket';
+import UserInfo, { isUserInfo } from 'src/app/classes/UserInfo';
 
 @Component({
   selector: 'app-started-game',
@@ -10,9 +11,8 @@ import { WebsocketDecorator } from 'src/app/injectables/websocket';
   styleUrls: ['./started-game.component.sass']
 })
 export class StartedGameComponent implements OnInit {
-  yourCapturedFigures: Figure[] = [];
-  opponentsCapturedFigures: Figure[] = [];
   room!: RoomInfo;
+  winningPlayer!: UserInfo;
 
   constructor(
     private router: Router,
@@ -22,10 +22,6 @@ export class StartedGameComponent implements OnInit {
 
   isClientSide(): boolean {
     return typeof window !== 'undefined';
-  }
-
-  figureCaptured(figure: Figure) {
-    this.yourCapturedFigures.push(figure);
   }
 
   onPlayerMove(move: string) {
@@ -47,6 +43,19 @@ export class StartedGameComponent implements OnInit {
       if (!isRoomInfo(room)) return;
       this.room = room;
     });
+
+    this.socket.on('gameRestarted', room => {
+      if (!isRoomInfo(room)) return;
+      this.room = room;
+    })
+
+    this.socket.on('playerWon', (info) => {
+      if (!info || typeof info !== 'object') return;
+      const { room, player } = info;
+      if (!isRoomInfo(room) || !isUserInfo(player)) return;
+      this.room = room;
+      this.winningPlayer = player;
+    })
     
     this.route.params.subscribe(params => {
       const { id } = params;
@@ -56,8 +65,6 @@ export class StartedGameComponent implements OnInit {
         return;
       }
       this.socket.emit('getRoom');
-      // Show game notation to the user (formatted a little bit).
-      // Show who's turn it is now.
       // Make timer logic.
       // Make everything slightly preetier.
     });

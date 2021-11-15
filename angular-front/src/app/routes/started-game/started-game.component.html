@@ -1,11 +1,6 @@
-<div class="captured-figures opponents">
-  <app-chess-figure
-    *ngFor="let figure of opponentsCapturedFigures"
-    [figure]="figure"
-  ></app-chess-figure>
-</div>
 <app-chess-field
   *ngIf="room"
   [room]="room"
+  [winningPlayer]="winningPlayer"
   (playerMadeMove)="onPlayerMove($event)"
 ></app-chess-field>

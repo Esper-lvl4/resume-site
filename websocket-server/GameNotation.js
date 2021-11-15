@@ -31,6 +31,10 @@ class GameNotation {
     this.list.pop();
   }
 
+  clear() {
+    this.list = [];
+  }
+
   prepareToSend() {
     return this.list.map(item => item.move);
   }

@@ -4,7 +4,6 @@
   position: relative
   display: grid
   grid-template: repeat(8, 80px) / repeat(8, 80px)
-  border: 3px solid #ffffff
 
 .chess-field-wrapper
   display: grid
@@ -25,6 +24,8 @@
 .chess-notation-wrapper
   grid-column: 2
   grid-row: 2
+  display: grid
+  grid-template: calc(100% - 70px) 70px / 100%
 
 @media (max-width: 850px)
   .chess-field-wrapper

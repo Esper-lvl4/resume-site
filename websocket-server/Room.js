@@ -8,6 +8,7 @@ class Room {
   gameNotation = new GameNotation();
   timer = 600;
   timerIncrement = 0;
+  playersWantRematch = [];
   _started = false;
   _isFinished = false;
   _maxPlayers = 2;
@@ -63,6 +64,20 @@ class Room {
     this._started = true;
     return true;
   }
+
+  restartGame(id) {
+    if (!id) return;
+    if (!this.playersWantRematch.includes(id)) this.playersWantRematch.push(id);
+    if (this.playersWantRematch.length !== this._maxPlayers) return;
+    this._isFinished = false;
+    this.gameNotation.clear();
+    this._started = true;
+    this.players.forEach(player => {
+      player.color = player.color === 'white' ? 'black' : 'white';
+    });
+    this.playersWantRematch = [];
+    this.notifyAllPlayers('gameRestarted', this.prepareToSend());
+  }
   
   finishGame() {
     this._isFinished = true;
@@ -104,6 +119,7 @@ class Room {
       players: this.players.map(player => player.prepareToSend()),
       gameNotation: this.gameNotation.prepareToSend(),
       gameHasStarted: this.gameHasStarted,
+      isFinished: this.isFinished,
       maxPlayers: this._maxPlayers,
       hostId: this.hostId,
     }

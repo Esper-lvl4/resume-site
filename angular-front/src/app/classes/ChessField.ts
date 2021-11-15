@@ -38,6 +38,7 @@ export class ChessField extends Events {
   }
 
   generate(playerColor: 'black' | 'white'): Figure[] {
+    console.log(playerColor);
     this.squares = [];
     this.playerColor = playerColor;
     const eventFigures: Figure[] = [];
@@ -209,5 +210,10 @@ export class ChessField extends Events {
           const { x: squareX, y: squareY } = square.coordinates;
           return squareX === x && squareY === y;
         });
+  }
+
+  reset() {
+    this.handlers = {};
+    this.squares = [];
   }
 }

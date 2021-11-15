@@ -1,0 +1,21 @@
+<div class="chess-tools-panel">
+  <div
+    [class.black-move]="currentTurn === 'black'"
+    class="current-turn-info"
+  >
+    {{ currentTurnInfo }}
+  </div>
+  <div class="other-actions">
+    <app-default-button
+      (click)="trySurrender()"
+    >
+      Surrender {{ surrenderBlock ? '(click again)' : '' }}
+    </app-default-button>
+    <app-default-button
+      *ngIf="rematchIsPossible"
+      (click)="rematch()"
+    >
+      Rematch ({{ rematchTimer }})
+    </app-default-button>
+  </div>
+</div>

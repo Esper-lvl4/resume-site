@@ -23,6 +23,7 @@ export class ChessFieldComponent implements OnInit, OnChanges {
 
   @Input() notation = [];
   @Input() room!: RoomInfo;
+  @Input() winningPlayer!: UserInfo;
   @Input() isStudy: boolean = false;
 
   @Output() playerMadeMove = new EventEmitter<string>();
@@ -95,6 +96,14 @@ export class ChessFieldComponent implements OnInit, OnChanges {
 
   roomDidRefresh(oldRoom: RoomInfo, newRoom: RoomInfo) {
     if (!oldRoom || !newRoom) return;
+    const { length: oldLength } = oldRoom.gameNotation;
+    const { length: newLength } = newRoom.gameNotation
+    if ((oldLength && !newLength) || (!oldLength && !newLength)) {
+      console.log('refresh generate: ', this.playerColor);
+      this.chessField.reset();
+      this.generateField();
+      return;
+    }
     if (oldRoom.gameNotation.length !== newRoom.gameNotation.length) {
       for (let i = oldRoom.gameNotation.length; i < newRoom.gameNotation.length; i++) {
         console.log('tick');
@@ -136,7 +145,6 @@ export class ChessFieldComponent implements OnInit, OnChanges {
     promotionInfo: string,
   }) {
     const { startingSquare, targetSquare, promotionInfo } = info;
-    const capturedFigure = targetSquare.figure;
     console.log('automaticMove');
     targetSquare.figure = startingSquare.figure;
     startingSquare.figure = null;
@@ -208,7 +216,12 @@ export class ChessFieldComponent implements OnInit, OnChanges {
       ? whiteKingSquare
       : blackKingSquare
     );
-    // this.isCheckMate = true;
+    this.isCheckMate = true;
+    this.socket.emit('checkmateReached', {
+      winningPlayer: whiteKing.attackerSquares.length
+        ? 'black'
+        : 'white'
+    });
     console.log('Is checkmate: ', isCheckMate);
   }
 
