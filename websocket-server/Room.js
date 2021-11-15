@@ -16,10 +16,17 @@ class Room {
   _blackTimerStarted = false;
   _whiteTimer = 600;
   _blackTimer = 600;
+  _finishedTimer = 60;
+  _noStartTimer = 600;
+  _noStartInterval = null;
 
   constructor(id, name) {
     if (typeof id === 'number' && !isNaN(id)) this.id = id;
     if (name && typeof name === 'string') this.name = name;
+    this._noStartTimer = 600;
+    this._noStartInterval = setInterval(() => {
+      this._noStartTimer--;
+    }, 1000);
   }
 
   get roomIsFull() {
@@ -62,6 +69,7 @@ class Room {
       player.color = takenColor;
     });
     this._started = true;
+    clearInterval(this._noStartInterval);
     return true;
   }
 
@@ -83,6 +91,11 @@ class Room {
     this._isFinished = true;
     clearInterval(this._whiteTimerStarted);
     clearInterval(this._blackTimerStarted);
+    this._finishedTimer = 60;
+    const timer = setInterval(() => {
+      this._finishedTimer--;
+      if (this._finishedTimer === 0) clearInterval(timer);
+    }, 1000);
   }
 
   makeMove(user, move) {
@@ -129,6 +142,14 @@ class Room {
 class RoomList {
   counter = 0;
   list = [];
+
+  constructor() {
+    setInterval(() => {
+      this.list = this.list.filter(room => {
+        return !(room.isFinished && !room._finishedTimer) && room._noStartTimer;
+      });
+    }, 20000);
+  }
 
   getRoomByUserId(id) {
     return this.list.find(room => {

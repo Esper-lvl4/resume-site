@@ -31,7 +31,7 @@ export class StartedGameComponent implements OnInit {
   ngOnInit(): void {
     if (!this.isClientSide) return;
     this.socket.on('roomSearchResult', room => {
-      if (!isRoomInfo(room)) {
+      if (!isRoomInfo(room) || room.isFinished) {
         this.socket.gameId = 0;
         this.router.navigate(['game', 'lobby']);
         return;

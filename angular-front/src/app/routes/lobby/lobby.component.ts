@@ -84,7 +84,7 @@ export class LobbyComponent implements OnInit {
   }
 
   goToGameRoute() {
-    if (!this.currentRoom?.gameHasStarted) return;
+    if (!this.currentRoom?.gameHasStarted || this.currentRoom?.isFinished) return;
     this.router.navigate(['game', this.currentRoom.id.toString()]);
   }
 
