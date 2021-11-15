@@ -1,5 +1,7 @@
 <div class="chess-field-wrapper">
-  <app-chess-advantage [figures]="opponentAdvantage"></app-chess-advantage>
+  <div class="chess-field-opponent-advantage">
+    <app-chess-advantage [figures]="opponentAdvantage"></app-chess-advantage>
+  </div>
   <div class="chess-field">
     <app-chess-field-square
       *ngFor="let square of squares"
@@ -22,6 +24,11 @@
       (promoteVariantChosen)="promoteFigure($event)"
     ></app-promote-popup>
   </div>
-  <app-chess-advantage [figures]="yourAdvantage"></app-chess-advantage>
+  <div class="chess-field-your-advantage">
+    <app-chess-advantage [figures]="yourAdvantage"></app-chess-advantage>
+  </div>
+  <div class="chess-notation-wrapper">
+    <app-chess-notation [value]="gameNotation"></app-chess-notation>
+  </div>
 </div>
 

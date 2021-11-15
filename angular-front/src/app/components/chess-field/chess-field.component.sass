@@ -1,6 +1,68 @@
 .chess-field
+  grid-column: 1
+  grid-row: 2
   position: relative
   display: grid
   grid-template: repeat(8, 80px) / repeat(8, 80px)
-  margin: 10px
   border: 3px solid #ffffff
+
+.chess-field-wrapper
+  display: grid
+  grid-template: 30px 640px 30px / 640px minmax(150px, 300px)
+  grid-gap: 10px 20px
+  height: 100%
+  align-content: center
+  justify-content: center
+
+.chess-field-opponent-advantage
+  grid-column: 1
+  grid-row: 1
+
+.chess-field-your-advantage
+  grid-column: 1
+  grid-row: 3
+
+.chess-notation-wrapper
+  grid-column: 2
+  grid-row: 2
+
+@media (max-width: 850px)
+  .chess-field-wrapper
+    grid-template: 30px 640px 30px / 100%
+
+  .chess-notation-wrapper
+    display: none
+
+@media (max-height: 850px)
+  .chess-field-wrapper
+    grid-template: 30px 640px 30px / 100%
+
+  .chess-notation-wrapper
+    display: none
+
+@media (max-width: 680px)
+  @media (orientation: portrait)
+    .chess-field-wrapper
+      grid-template: 30px calc(100vmin - 30px) 30px / 100%
+
+    .chess-field
+      grid-template: repeat(8, calc(12.5vmin - 4px)) / repeat(8, calc(12.5vmin - 4px))
+
+@media (max-height: 680px)
+  @media (orientation: landscape)
+    .chess-field-wrapper
+      grid-template: calc(100vh - 160px) / auto calc(100vh - 160px) auto
+
+    .chess-field-opponent-advantage
+      grid-column: 3
+      grid-row: 1
+
+    .chess-field-your-advantage
+      grid-column: 1
+      grid-row: 1
+      align-self: end
+
+    .chess-field
+      grid-column: 2
+      grid-row: 1
+      grid-template: repeat(8, calc(12.5vh - 20px)) / repeat(8, calc(12.5vh - 20px))
