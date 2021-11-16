@@ -287,7 +287,7 @@ export class ChessFieldComponent implements OnInit, OnChanges {
     });
 
     console.log('king can be protected: ', kingCanBeProtected);
-    return !kingCanBeProtected;
+    return !kingCanBeProtected && !kingCanMove;
   }
 
   convertMove(info: MoveEvent, promoteInfo?: string) {
@@ -374,6 +374,7 @@ export class ChessFieldComponent implements OnInit, OnChanges {
     this.clearPossibleMoves();
     if (!square?.figure) return;
     const traitorMoves = this.getTraitorMoves(square, square.figure);
+    console.log(traitorMoves);
     const { figure } = square;
     this.chessField.traverse(currentSquare => {
       const { x, y } = currentSquare.coordinates;
@@ -388,6 +389,7 @@ export class ChessFieldComponent implements OnInit, OnChanges {
           figure.color === 'white' ? 'black' : 'white',
           true,
         );
+        console.log(x, y, capturerSquares);
         if (capturerSquares.length === 0) currentSquare.isPossibleMove = true;
         return;
       }
@@ -417,6 +419,11 @@ export class ChessFieldComponent implements OnInit, OnChanges {
       if (currentFigure instanceof KnightFigure) return true;
 
       const obstacles = this.chessField.getOccupiedSquaresBetween(square, currentSquare);
+      if (obstacles.length === 1) {
+        const obstacleSquare = obstacles[0];
+        return obstacleSquare.figure instanceof KingFigure
+          && obstacleSquare.figure.color !== currentFigure.color;
+      }
       return obstacles.length === 0;
     }) as SquareWithFigure[];
   }
@@ -454,7 +461,10 @@ export class ChessFieldComponent implements OnInit, OnChanges {
       if (!currentFigure.moveIsImpossible(kingX, kingY)) return;
 
       figure.traversePossibleMoves((x, y, direction) => {
-        if (this.chessField.squareIsBetweenTwoSquares({ x: +x, y: +y }, kingSquare, currentSquare)) {
+        if (
+          this.chessField.squareIsBetweenTwoSquares({ x: +x, y: +y }, kingSquare, currentSquare)
+          || figure.moveIsPossible(x, y)
+        ) {
           return;
         }
         if (!result[x]) result[x] = {};

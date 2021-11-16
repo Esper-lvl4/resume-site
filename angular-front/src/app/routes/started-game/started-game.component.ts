@@ -67,12 +67,9 @@ export class StartedGameComponent implements OnInit {
       this.socket.emit('getRoom');
       // Make timer logic.
       // Make everything slightly preetier.
-
-      
-      // Make last move visible.
     });
   }
   /* Bugs.
-    2) Рокировка возможна если под атакой клетка куда король не встает.
+    
   */
 }
