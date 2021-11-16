@@ -372,7 +372,7 @@ export class ChessFieldComponent implements OnInit, OnChanges {
 
   showValidMoves(square: Square | null) {
     this.clearPossibleMoves();
-    if (!square?.figure) return;
+    if (!square?.figure || this.isCheckMate) return;
     const traitorMoves = this.getTraitorMoves(square, square.figure);
     console.log(traitorMoves);
     const { figure } = square;
