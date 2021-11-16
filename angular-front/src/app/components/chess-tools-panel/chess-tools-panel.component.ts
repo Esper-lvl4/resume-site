@@ -1,7 +1,8 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Router } from '@angular/router';
 import { Figure } from 'src/app/classes/chess-figures/Figure';
-import RoomInfo, { isRoomInfo } from 'src/app/classes/RoomInfo';
-import UserInfo, { isUserInfo } from 'src/app/classes/UserInfo';
+import RoomInfo from 'src/app/classes/RoomInfo';
+import UserInfo from 'src/app/classes/UserInfo';
 import { WebsocketDecorator } from 'src/app/injectables/websocket';
 
 @Component({
@@ -25,8 +26,12 @@ export class ChessToolsPanelComponent implements OnChanges {
       : 'Opponent\'s turn';
   }
 
+  get gameIsFinished(): boolean {
+    return !!this.room?.isFinished;
+  }
+
   get rematchIsPossible(): boolean {
-    return this.room.isFinished && this.rematchTimer > 0;
+    return this.room.isFinished && this.rematchTimer > 0 && this.room.players.length === 2;
   }
 
   get gameNotation(): string[] {
@@ -47,7 +52,10 @@ export class ChessToolsPanelComponent implements OnChanges {
     return this.clientPlayer?.color || 'white';
   }
 
-  constructor(private socket: WebsocketDecorator) { }
+  constructor(
+    private socket: WebsocketDecorator,
+    private router: Router,
+  ) { }
 
   trySurrender() {
     if (!this.surrenderBlock) {
@@ -62,6 +70,10 @@ export class ChessToolsPanelComponent implements OnChanges {
 
   rematch() {
     this.socket.emit('restartGame');
+  }
+
+  leave() {
+    this.router.navigate(['game', 'lobby']);
   }
 
   ngOnChanges(changes: SimpleChanges): void {

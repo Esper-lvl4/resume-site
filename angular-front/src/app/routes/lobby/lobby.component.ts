@@ -100,7 +100,7 @@ export class LobbyComponent implements OnInit {
       this.roomList = roomList.filter(room => isRoomInfo(room));
       if (!this.currentRoom) return;
       const currentRoom = this.roomList.find(room => room.id === this.currentRoom?.id);
-      if (currentRoom) this.setCurrentRoom(currentRoom);
+      this.setCurrentRoom(currentRoom);
     });
 
     this.socket.on('joinedRoom', room => {

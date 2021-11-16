@@ -82,6 +82,21 @@ function handleRooms(socket) {
     socket.emit('leftRoom', room.prepareToSend());
   });
 
+  socket.on('leftFinishedRoom', data => {
+    if (!data || typeof data !== 'object') {
+      socket.emit('showError', 'Failed to leave room: Data was not provided');
+      return;
+    }
+    const { id } = data;
+    const user = userList.findUser(id);
+    if (!user) return;
+    const room = roomList.getRoomByUserId(id);
+    if (!room) return;
+    room.leave(user);
+    room.refresh();
+    refreshAllUsers();
+  });
+
   socket.on('startGame', data => {
     if (!data || typeof data !== 'object') {
       socket.emit('showError', 'Failed to start game: Data was not provided');

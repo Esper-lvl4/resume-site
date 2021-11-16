@@ -1,4 +1,5 @@
 const GameNotation = require("./GameNotation");
+const { userList } = require("./users");
 
 class Room {
   id = 0;
@@ -17,15 +18,16 @@ class Room {
   _whiteTimer = 600;
   _blackTimer = 600;
   _finishedTimer = 60;
-  _noStartTimer = 600;
+  _noStartTimer = 300;
   _noStartInterval = null;
 
   constructor(id, name) {
     if (typeof id === 'number' && !isNaN(id)) this.id = id;
     if (name && typeof name === 'string') this.name = name;
-    this._noStartTimer = 600;
+    this._noStartTimer = 300;
     this._noStartInterval = setInterval(() => {
       this._noStartTimer--;
+      if (this._noStartTimer <= 0) clearInterval(this._noStartInterval);
     }, 1000);
   }
 
@@ -39,6 +41,12 @@ class Room {
 
   get gameHasStarted() {
     return this._started;
+  }
+
+  get canBeRemoved() {
+    return (this.isFinished && (this._finishedTimer <= 0
+      || this.players.length < this._maxPlayers))
+      || (!this._started && this._noStartTimer <= 0);
   }
 
   join(user) {
@@ -145,10 +153,15 @@ class RoomList {
 
   constructor() {
     setInterval(() => {
-      this.list = this.list.filter(room => {
-        return !(room.isFinished && !room._finishedTimer) && room._noStartTimer;
+      const toRemoveIndexes = [];
+      this.list.forEach((room, index) => {
+        if (room.canBeRemoved) toRemoveIndexes.push(index);
       });
-    }, 20000);
+
+      if (toRemoveIndexes.length === 0) return;
+      this.list = this.list.filter((room, index) => !toRemoveIndexes.includes(index));
+      userList.notifyAllUsers('refreshRoomList', this.prepareToSend());
+    }, 5000);
   }
 
   getRoomByUserId(id) {

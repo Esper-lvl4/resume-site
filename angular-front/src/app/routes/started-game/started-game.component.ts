@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { Figure } from 'src/app/classes/chess-figures/Figure';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import RoomInfo, { isRoomInfo } from 'src/app/classes/RoomInfo';
 import { WebsocketDecorator } from 'src/app/injectables/websocket';
@@ -10,7 +9,7 @@ import UserInfo, { isUserInfo } from 'src/app/classes/UserInfo';
   templateUrl: './started-game.component.html',
   styleUrls: ['./started-game.component.sass']
 })
-export class StartedGameComponent implements OnInit {
+export class StartedGameComponent implements OnInit, OnDestroy {
   room!: RoomInfo;
   winningPlayer!: UserInfo;
 
@@ -68,6 +67,12 @@ export class StartedGameComponent implements OnInit {
       // Make timer logic.
       // Make everything slightly preetier.
     });
+  }
+
+  ngOnDestroy() {
+    if (this.room?.isFinished) {
+      this.socket.emit('leftFinishedRoom');
+    }
   }
   /* Bugs.
     
